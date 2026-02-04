@@ -1,0 +1,88 @@
+/* ===== GENERAL ===== */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #eef6ff, #ffffff);
+  text-align: center;
+  color: #003366;
+}
+
+header {
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* ===== DRAGON ===== */
+.dragon-container {
+  height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dragon {
+  width: 220px;
+  animation: fly 4s ease-in-out infinite,
+             float 2s ease-in-out infinite;
+}
+
+@keyframes fly {
+  0%   { transform: translateX(-120px); }
+  50%  { transform: translateX(120px); }
+  100% { transform: translateX(-120px); }
+}
+
+@keyframes float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
+}
+
+/* ===== CARDS ===== */
+.services {
+  margin-top: 30px;
+}
+
+.cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  width: 220px;
+  padding: 20px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  font-size: 1.1rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* ===== FOOTER / BACK ===== */
+.back {
+  display: inline-block;
+  margin: 30px;
+  font-weight: bold;
+  color: #0059b3;
+}
+
+.note {
+  font-style: italic;
+  color: #555;
+}

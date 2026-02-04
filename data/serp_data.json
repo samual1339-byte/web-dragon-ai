@@ -1,0 +1,20 @@
+{
+  "astrology": [
+    {
+      "title": "Daily Horoscope Overview",
+      "snippet": "General horoscope trends and planetary movements affecting all zodiac signs."
+    }
+  ],
+  "courses": [
+    {
+      "title": "Top Programming Courses 2026",
+      "snippet": "Python, Java, Digital Marketing and web development learning paths."
+    }
+  ],
+  "marketing": [
+    {
+      "title": "Market Trends Today",
+      "snippet": "Stock market movement, business updates, and trading insights."
+    }
+  ]
+}
