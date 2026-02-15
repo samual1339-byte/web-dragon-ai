@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matchmaking Result</title>
+    
+    <!-- CSS Link Added -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<h2>Matchmaking Result</h2>
+
+<p><strong>Guna Milan:</strong>
+   {{ match.guna_milan if match and match.guna_milan else "Not calculated" }}
+</p>
+
+<p><strong>Score:</strong>
+   {{ match.score if match and match.score is not none else "N/A" }}
+</p>
+
+<p><strong>Verdict:</strong>
+   {{ match.verdict if match and match.verdict else "Pending analysis" }}
+</p>
+
+<!-- Route reference improved (no core logic changed) -->
+<a href="{{ url_for('astrology') }}">⬅ Back to Astrology</a>
+
+</body>
+</html>

@@ -1,59 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Courses | World of Web Dragon</title>
-
+  <title>Courses | Web Dragon AI</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
 
-<header class="page-header">
-  <h1>💻 Digital Courses</h1>
-  <p>Learn future-ready skills with Web Dragon</p>
-</header>
+<h1>💻 Digital Courses</h1>
 
-<section class="cards">
+{% if data %}
+  {% for course, items in data.items() %}
+    <h2>{{ course | replace("_", " ") | title }}</h2>
 
-  <div class="card">
-    <span class="icon">📢</span>
-    <h3>Digital Marketing</h3>
-    <p>SEO • Ads • Content • Automation</p>
-  </div>
+    {% if items %}
+      <ul>
+        {% for item in items %}
+          <li>
+            <strong>{{ item.title }}</strong><br>
+            <small>{{ item.snippet }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No data yet.</p>
+    {% endif %}
 
-  <div class="card">
-    <span class="icon">🐍</span>
-    <h3>Python</h3>
-    <p>Basics • Automation • AI</p>
-  </div>
+  {% endfor %}
+{% else %}
+  <p>Course data is being collected autonomously…</p>
+{% endif %}
 
-  <div class="card">
-    <span class="icon">☕</span>
-    <h3>Java</h3>
-    <p>Core Java • OOP • Backend</p>
-  </div>
-
-  <div class="card">
-    <span class="icon">📊</span>
-    <h3>BI & Analytics</h3>
-    <p>Power BI • Data • Dashboards</p>
-  </div>
-
-  <div class="card">
-    <span class="icon">🌐</span>
-    <h3>HTML & CSS</h3>
-    <p>Web Design • Responsive UI</p>
-  </div>
-
-</section>
-
-<p class="note">
-  🚀 Autonomous learning roadmaps & resources will be generated automatically
-</p>
-
-<a href="{{ url_for('home') }}" class="back">⬅ Back Home</a>
+<a href="/">⬅ Home</a>
 
 </body>
 </html>

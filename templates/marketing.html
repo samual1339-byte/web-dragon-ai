@@ -1,28 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Marketing & Trading | World of Web Dragon</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Marketing & Trading | Web Dragon AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<header>
-  <h1>📊 Marketing & Trading</h1>
-</header>
+<h1>📊 Marketing & Trading</h1>
 
-<section class="cards">
-  <div class="card">📈 Stock Trends</div>
-  <div class="card">📉 Market Analysis</div>
-  <div class="card">🎨 Graphic Design</div>
-  <div class="card">📰 Business Updates</div>
-</section>
+{% if data %}
+  {% for section, items in data.items() %}
+    <h2>{{ section | replace("_", " ") | title }}</h2>
 
-<p class="note">
-  (Live market insights via SERP will be injected here)
-</p>
+    {% if items %}
+      <ul>
+        {% for item in items %}
+          <li>
+            <strong>{{ item.title }}</strong><br>
+            <small>{{ item.snippet }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No data yet.</p>
+    {% endif %}
 
-<a href="/" class="back">⬅ Back Home</a>
+  {% endfor %}
+{% else %}
+  <p>Market data loading autonomously…</p>
+{% endif %}
+
+<a href="/">⬅ Home</a>
 
 </body>
 </html>

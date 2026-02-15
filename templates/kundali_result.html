@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kundali Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body { padding: 30px; font-family: Arial; background:#f4f4f4; }
+        h1 { margin-bottom: 20px; }
+        .section { margin-bottom: 35px; }
+        .card {
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        }
+        ul { list-style:none; padding-left:0; }
+        li { padding:6px 0; }
+        .highlight { color:#d63384; font-weight:bold; }
+        .good { color:green; font-weight:bold; }
+        .bad { color:red; font-weight:bold; }
+    </style>
+</head>
+<body>
+
+<h1>🔮 Complete Kundali Analysis</h1>
+
+<!-- ================= PLANETS ================= -->
+<div class="section card">
+<h2>🕉 Planetary Positions</h2>
+
+{% if kundali and kundali.planets %}
+<ul>
+    {% for planet, info in kundali.planets.items() %}
+        <li>
+            <strong>{{ planet }}</strong> :
+            {{ info.rashi }} ({{ info.degree }}°) |
+            House {{ info.house }} |
+            Strength: <span class="highlight">{{ info.strength }}</span>
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No planetary data available.</p>
+{% endif %}
+
+</div>
+
+
+<!-- ================= LAGNA ================= -->
+<div class="section card">
+<h2>🌅 Ascendant (Lagna)</h2>
+{% if kundali and kundali.lagna %}
+<p><strong>{{ kundali.lagna }}</strong></p>
+{% else %}
+<p>Not calculated.</p>
+{% endif %}
+</div>
+
+
+<!-- ================= YOGAS ================= -->
+<div class="section card">
+<h2>✨ Major Yogas</h2>
+{% if kundali and kundali.yogas %}
+<ul>
+    {% for yoga in kundali.yogas %}
+        <li class="good">{{ yoga }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No major yogas detected.</p>
+{% endif %}
+</div>
+
+
+<!-- ================= DOSHAS ================= -->
+<div class="section card">
+<h2>⚠ Dosha Analysis</h2>
+{% if kundali and kundali.doshas %}
+<ul>
+    {% for dosha in kundali.doshas %}
+        <li class="bad">{{ dosha }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No significant dosha detected.</p>
+{% endif %}
+</div>
+
+
+<!-- ================= AI INTERPRETATION ================= -->
+<div class="section card">
+<h2>🧠 AI Personality Interpretation</h2>
+{% if kundali and kundali.interpretation %}
+<p>{{ kundali.interpretation }}</p>
+{% else %}
+<p>Interpretation not available.</p>
+{% endif %}
+</div>
+
+
+<!-- ================= DIGITAL INSIGHT ================= -->
+<div class="section card">
+<h2>🌐 Live Digital Insight</h2>
+{% if serp and serp|length > 0 %}
+    <p><strong>{{ serp[0].title }}</strong></p>
+    <p>{{ serp[0].snippet }}</p>
+{% else %}
+    <p>No live insight available.</p>
+{% endif %}
+</div>
+
+
+<!-- ================= GUNA MILAN ================= -->
+{% if data %}
+<div class="section card">
+<h2>❤️ Guna Milan Result</h2>
+<p><strong>Score:</strong> {{ data.score }}</p>
+<p><strong>Verdict:</strong> {{ data.verdict }}</p>
+</div>
+{% endif %}
+
+<a href="/astrology">⬅ Back</a>
+
+</body>
+</html>

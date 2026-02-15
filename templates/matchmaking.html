@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matchmaking | Web Dragon AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<h1>💑 Matchmaking Guidance</h1>
+
+<h2>📜 Lal Kitab</h2>
+<ul>
+  {% for item in data.lal_kitab %}
+    <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+
+<h2>🕉 Vedic Jyotish</h2>
+<ul>
+  {% for item in data.vedic %}
+    <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+
+<a href="/astrology">⬅ Back</a>
+
+</body>
+</html>

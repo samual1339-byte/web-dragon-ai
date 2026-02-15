@@ -1,88 +1,101 @@
-/* ===== GENERAL ===== */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #eef6ff, #ffffff);
+/* ===== HOME PAGE ===== */
+
+body.home {
   text-align: center;
-  color: #003366;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent accidental overflow blocking */
 }
 
-header {
-  padding: 20px;
+/* Header */
+header h1 {
+  margin-top: 20px;
+  font-size: 32px;
 }
 
-h1 {
-  font-size: 2.5rem;
+header p {
+  color: #555;
 }
 
-a {
-  text-decoration: none;
-}
+/* ===== Dragon Section ===== */
 
-/* ===== DRAGON ===== */
 .dragon-container {
-  height: 260px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 40px 0;
+  position: relative;
+  z-index: 1;
+  pointer-events: none; /* CRITICAL: prevent blocking clicks */
 }
 
 .dragon {
-  width: 220px;
-  animation: fly 4s ease-in-out infinite,
-             float 2s ease-in-out infinite;
+  width: 300px;
+  max-width: 100%;
+  height: auto;
+  animation: floatDragon 4s ease-in-out infinite;
+  pointer-events: none; /* CRITICAL: image cannot block clicks */
 }
 
-@keyframes fly {
-  0%   { transform: translateX(-120px); }
-  50%  { transform: translateX(120px); }
-  100% { transform: translateX(-120px); }
+/* Dragon floating animation */
+@keyframes floatDragon {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
 }
 
-@keyframes float {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-18px); }
-  100% { transform: translateY(0); }
-}
+/* ===== Services Section ===== */
 
-/* ===== CARDS ===== */
 .services {
-  margin-top: 30px;
+  margin-top: 20px;
+  position: relative;
+  z-index: 10; /* Above dragon */
 }
+
+.services h2 {
+  margin-bottom: 20px;
+}
+
+/* ===== Cards Layout ===== */
 
 .cards {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 20px;
-  padding: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 20; /* Always above everything */
 }
+
+/* ===== Individual Card ===== */
 
 .card {
-  width: 220px;
-  padding: 20px;
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  font-size: 1.1rem;
-  transition: transform 0.3s, box-shadow 0.3s;
-  cursor: pointer;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-/* ===== FOOTER / BACK ===== */
-.back {
   display: inline-block;
-  margin: 30px;
-  font-weight: bold;
-  color: #0059b3;
+  background: #f7f7f7;
+  padding: 20px 25px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #000;
+  font-size: 18px;
+  min-width: 200px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  z-index: 30;
+  pointer-events: auto; /* Explicitly clickable */
 }
 
-.note {
-  font-style: italic;
-  color: #555;
+/* Hover Effect */
+.card:hover {
+  background: #e0ffe8;
+  transform: scale(1.05);
+}
+
+/* Ensure all anchor tags are interactive */
+a {
+  pointer-events: auto;
+  position: relative;
+  z-index: 30;
 }

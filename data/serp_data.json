@@ -1,20 +1,67 @@
 {
-  "astrology": [
-    {
-      "title": "Daily Horoscope Overview",
-      "snippet": "General horoscope trends and planetary movements affecting all zodiac signs."
+  "astrology": {
+    "kundali": {
+      "results": [],
+      "summary": "No major planetary updates available.",
+      "last_updated": "2026-02-15 21:18:25.288020"
+    },
+    "matchmaking": {
+      "results": [],
+      "summary": "No major planetary updates available.",
+      "last_updated": "2026-02-15 21:18:25.288020"
+    },
+    "daily": {
+      "results": [],
+      "summary": "No major planetary updates available.",
+      "last_updated": "2026-02-15 21:18:25.288020"
+    },
+    "weekly": {
+      "results": [],
+      "summary": "No major planetary updates available.",
+      "last_updated": "2026-02-15 21:18:25.288020"
+    },
+    "monthly": {
+      "results": [],
+      "summary": "No major planetary updates available.",
+      "last_updated": "2026-02-15 21:18:25.288020"
+    },
+    "yearly": {
+      "results": [],
+      "summary": "No major planetary updates available.",
+      "last_updated": "2026-02-15 21:18:25.288020"
     }
-  ],
-  "courses": [
-    {
-      "title": "Top Programming Courses 2026",
-      "snippet": "Python, Java, Digital Marketing and web development learning paths."
+  },
+  "courses": {
+    "python": {
+      "results": [],
+      "summary": "No major planetary updates available."
+    },
+    "java": {
+      "results": [],
+      "summary": "No major planetary updates available."
+    },
+    "digital_marketing": {
+      "results": [],
+      "summary": "No major planetary updates available."
+    },
+    "html_css": {
+      "results": [],
+      "summary": "No major planetary updates available."
     }
-  ],
-  "marketing": [
-    {
-      "title": "Market Trends Today",
-      "snippet": "Stock market movement, business updates, and trading insights."
+  },
+  "marketing": {
+    "stock_trends": {
+      "results": [],
+      "summary": "No major planetary updates available."
+    },
+    "business_news": {
+      "results": [],
+      "summary": "No major planetary updates available."
+    },
+    "marketing_trends": {
+      "results": [],
+      "summary": "No major planetary updates available."
     }
-  ]
+  },
+  "system_last_updated": "2026-02-15 21:18:31.548605"
 }

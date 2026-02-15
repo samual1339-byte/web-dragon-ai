@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kundali | Web Dragon AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<h1>🪔 Kundali Generator</h1>
+
+<form method="post">
+  <input name="name" placeholder="Name" required><br><br>
+  <input type="date" name="dob" required><br><br>
+  <input type="time" name="tob" required><br><br>
+  <input name="place" placeholder="Place of Birth" required><br><br>
+  <button type="submit">Generate Kundali</button>
+</form>
+
+{% if data %}
+<hr>
+
+<h2>📜 Lal Kitab Guidance</h2>
+<ul>
+  {% for item in data.lal_kitab %}
+    <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+
+<h2>🕉 Vedic Jyotish Guidance</h2>
+<ul>
+  {% for item in data.vedic %}
+    <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<a href="/astrology">⬅ Back</a>
+
+</body>
+</html>

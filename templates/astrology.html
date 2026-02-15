@@ -1,30 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Astrology | World of Web Dragon</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <title>Astrology | Web Dragon AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .astro-container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 30px;
+        }
+        .astro-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .astro-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+        .astro-card {
+            background: #111;
+            color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .astro-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .astro-card h3 {
+            margin-bottom: 10px;
+            color: #ffd369;
+        }
+        .astro-card p {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        .astro-card a, .astro-card button {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #ffd369;
+            color: #000;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        .astro-card a:hover, .astro-card button:hover {
+            background: #ffbf00;
+        }
+        .astro-card input {
+            width: 90%;
+            padding: 6px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border: none;
+        }
+    </style>
 </head>
+
 <body>
+<p style="color:red;">VERSION CHECK 123</p>
 
-<header>
-  <h1>🔮 Astrology Services</h1>
-</header>
+<div class="astro-container">
+    <div class="astro-title">
+        <h1>🔮 Astrology Intelligence</h1>
+        <p>Vedic • Lal Kitab • Matchmaking • Predictions</p>
+    </div>
 
-<section class="cards">
-  <div class="card">🧿 Kundali</div>
-  <div class="card">❤️ Match Making</div>
-  <div class="card">🌞 Daily Horoscope</div>
-  <div class="card">📅 Weekly Horoscope</div>
-  <div class="card">📆 Monthly Horoscope</div>
-  <div class="card">🗓 Yearly Horoscope</div>
-</section>
+    <div class="astro-grid">
 
-<p class="note">
-  (Autonomous SERP-based astrology insights will appear here)
-</p>
+        <!-- KUNDALI -->
+        <div class="astro-card">
+            <h3>🪐 Kundali Creation</h3>
+            <p>Create your birth chart using Vedic & Lal Kitab principles.</p>
 
-<a href="/" class="back">⬅ Back Home</a>
+            <form method="POST" action="/astrology/kundali">
+                <input type="text" name="name" placeholder="Name" required>
+                <input type="date" name="dob" required>
+                <input type="time" name="tob" required>
+                <input type="text" name="pob" placeholder="Place of Birth" required>
+                <button type="submit">Generate Kundali</button>
+            </form>
+        </div>
+
+        <!-- MATCHMAKING -->
+        <div class="astro-card">
+            <h3>💞 Matchmaking</h3>
+            <p>Guna Milan, compatibility & marriage insights.</p>
+            <a href="/astrology/matchmaking">Check Match</a>
+        </div>
+
+        <!-- DAILY HOROSCOPE -->
+        <div class="astro-card">
+            <h3>📅 Daily Horoscope</h3>
+            <p>AI-assisted daily planetary guidance.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+
+        <!-- WEEKLY HOROSCOPE -->
+        <div class="astro-card">
+            <h3>🗓 Weekly Horoscope</h3>
+            <p>Plan your week with planetary trends.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+
+        <!-- MONTHLY HOROSCOPE -->
+        <div class="astro-card">
+            <h3>📆 Monthly Horoscope</h3>
+            <p>Long-term planetary movements & remedies.</p>
+            <a href="#">Coming Soon</a>
+        </div>
+
+        <!-- YEARLY HOROSCOPE -->
+        <div class="astro-card">
+            <h3>🌌 Yearly Horoscope</h3>
+            <p>Year-wide predictions using SERP + AI (next phase).</p>
+            <a href="#">Coming Soon</a>
+        </div>
+
+    </div>
+</div>
 
 </body>
 </html>
