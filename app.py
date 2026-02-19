@@ -7,32 +7,45 @@ import os
 # =========================
 app = Flask(__name__)
 
-# =========================
-# SAFE SERVICE IMPORTS
-# =========================
-from services.user_logger.user_logger import log_user_action
-from services.learning_engine.learning_engine import learn_from_user
-
-from services.kundali_engine.kundali_engine import (
-    generate_kundali,
-    matchmaking_kundali
-)
-
-from services.astrology_data import get_astrology_data
-from services.course_data import get_courses_data
-from services.marketing_data import get_marketing_data
-
-from services.serp_worker import update_serp_data
-
 
 # =========================
-# AUTONOMOUS SERP WORKER
+# SAFE IMPORT WRAPPER
+# =========================
+try:
+    from services.user_logger.user_logger import log_user_action
+    from services.learning_engine.learning_engine import learn_from_user
+    from services.kundali_engine.kundali_engine import generate_kundali, matchmaking_kundali
+    from services.astrology_data import get_astrology_data
+    from services.course_data import get_courses_data
+    from services.marketing_data import get_marketing_data
+    from services.serp_worker import update_serp_data
+except Exception as e:
+    print("IMPORT ERROR:", e)
+
+    def log_user_action(*args, **kwargs): pass
+    def learn_from_user(*args, **kwargs): pass
+    def generate_kundali(*args, **kwargs): return {}
+    def matchmaking_kundali(*args, **kwargs): return {}
+    def get_astrology_data(): return {}
+    def get_courses_data(): return {}
+    def get_marketing_data(): return {}
+    def update_serp_data(): pass
+
+
+# =========================
+# BACKGROUND WORKER
 # =========================
 def start_serp_worker():
-    t = threading.Thread(target=update_serp_data, daemon=True)
-    t.start()
+    try:
+        t = threading.Thread(target=update_serp_data, daemon=True)
+        t.start()
+        print("SERP Worker Started")
+    except Exception as e:
+        print("Worker Error:", e)
 
-if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+
+# Start worker once (Production Safe)
+if not app.debug:
     start_serp_worker()
 
 
@@ -45,11 +58,9 @@ def index():
     return render_template("index.html")
 
 
-# -------- ASTROLOGY HOME --------
 @app.route("/astrology")
 def astrology():
     user_ip = request.remote_addr or "unknown"
-
     log_user_action(user_ip, "astrology")
     learn_from_user(user_ip, "interest", "astrology")
 
@@ -57,21 +68,17 @@ def astrology():
     return render_template("astrology.html", data=data)
 
 
-# -------- KUNDALI --------
 @app.route("/astrology/kundali", methods=["GET", "POST"])
-def kundali_route():   # UNIQUE endpoint name
-
+def kundali_route():
     user_ip = request.remote_addr or "unknown"
-
     log_user_action(user_ip, "kundali")
     learn_from_user(user_ip, "sub_interest", "kundali")
 
     if request.method == "POST":
-
         name = request.form.get("name")
         dob = request.form.get("dob")
         tob = request.form.get("tob")
-        place = request.form.get("pob")  # matches form field
+        place = request.form.get("pob")
 
         try:
             result = generate_kundali(
@@ -86,7 +93,7 @@ def kundali_route():   # UNIQUE endpoint name
         dummy_serp = [
             {
                 "title": "Astrological Insight",
-                "snippet": f"{name}, your planetary alignment suggests strong growth and leadership qualities."
+                "snippet": f"{name}, your planetary alignment suggests strong growth."
             }
         ]
 
@@ -97,7 +104,6 @@ def kundali_route():   # UNIQUE endpoint name
             data=result
         )
 
-    # GET request
     return render_template(
         "kundali_result.html",
         kundali={},
@@ -106,11 +112,9 @@ def kundali_route():   # UNIQUE endpoint name
     )
 
 
-# -------- MATCHMAKING --------
 @app.route("/astrology/matchmaking")
 def matchmaking():
     user_ip = request.remote_addr or "unknown"
-
     log_user_action(user_ip, "matchmaking")
     learn_from_user(user_ip, "sub_interest", "matchmaking")
 
@@ -118,11 +122,9 @@ def matchmaking():
     return render_template("matchmaking_result.html", data=data)
 
 
-# -------- COURSES --------
 @app.route("/courses")
 def courses():
     user_ip = request.remote_addr or "unknown"
-
     log_user_action(user_ip, "courses")
     learn_from_user(user_ip, "interest", "courses")
 
@@ -130,11 +132,9 @@ def courses():
     return render_template("courses.html", data=data)
 
 
-# -------- MARKETING --------
 @app.route("/marketing")
 def marketing():
     user_ip = request.remote_addr or "unknown"
-
     log_user_action(user_ip, "marketing")
     learn_from_user(user_ip, "interest", "marketing")
 
@@ -143,10 +143,8 @@ def marketing():
 
 
 # =========================
-# RUN SERVER
+# LOCAL DEV ENTRY
 # =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-
