@@ -941,5 +941,34 @@
     "page": "astrology",
     "query": null,
     "extra_data": null
+  },
+  {
+    "time": "2026-02-19 23:52:13",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-19 23:52:38",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-19 23:52:38",
+    "ip": "system",
+    "page": "generate_kundali",
+    "query": null,
+    "extra_data": {
+      "name": "sudhir",
+      "dob": "1983-12-12",
+      "tob": "22:58",
+      "place": "amritsar",
+      "lagna": "Aquarius",
+      "yogas": [],
+      "doshas": []
+    }
   }
 ]
