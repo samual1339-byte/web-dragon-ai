@@ -6,3 +6,6 @@ gunicorn
 beautifulsoup4
 uvicorn
 fastapi
+reportlab
+flask-session
+pytz

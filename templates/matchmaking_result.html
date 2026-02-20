@@ -2,28 +2,168 @@
 <html>
 <head>
     <title>Matchmaking Result</title>
-    
-    <!-- CSS Link Added -->
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-item {
+            margin: 15px 0;
+            font-size: 18px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .green { background-color: #e6f4ea; color: #2e7d32; }
+        .orange { background-color: #fff4e5; color: #ef6c00; }
+        .red { background-color: #fdecea; color: #c62828; }
+        .gray { background-color: #eceff1; color: #546e7a; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f1f3f6;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #5e35b1;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Matchmaking Result</h2>
+<div class="container">
 
-<p><strong>Guna Milan:</strong>
-   {{ match.guna_milan if match and match.guna_milan else "Not calculated" }}
-</p>
+    <h2>❤️ Matchmaking Compatibility Report</h2>
 
-<p><strong>Score:</strong>
-   {{ match.score if match and match.score is not none else "N/A" }}
-</p>
+    <!-- Main Summary Card -->
+    <div class="card">
 
-<p><strong>Verdict:</strong>
-   {{ match.verdict if match and match.verdict else "Pending analysis" }}
-</p>
+        <div class="result-item">
+            <strong>Total Score:</strong>
+            {% if match and match.score is not none %}
+                {% if match.score >= 28 %}
+                    <span class="badge green">{{ match.score }} / 36</span>
+                {% elif match.score >= 18 %}
+                    <span class="badge orange">{{ match.score }} / 36</span>
+                {% else %}
+                    <span class="badge red">{{ match.score }} / 36</span>
+                {% endif %}
+            {% else %}
+                <span class="badge gray">N/A</span>
+            {% endif %}
+        </div>
 
-<!-- Route reference improved (no core logic changed) -->
-<a href="{{ url_for('astrology') }}">⬅ Back to Astrology</a>
+        <div class="result-item">
+            <strong>Verdict:</strong>
+            {% if match and match.verdict %}
+                <span class="badge green">{{ match.verdict }}</span>
+            {% else %}
+                <span class="badge gray">Pending Analysis</span>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Detailed Guna Breakdown -->
+    <div class="card">
+        <h3>🔍 Detailed Ashta Koota Breakdown</h3>
+
+        {% if match and match.guna_breakdown %}
+            <table>
+                <tr>
+                    <th>Koota</th>
+                    <th>Score</th>
+                    <th>Max</th>
+                </tr>
+
+                {% for koota, details in match.guna_breakdown.items() %}
+                <tr>
+                    <td>{{ koota }}</td>
+                    <td>{{ details.score }}</td>
+                    <td>{{ details.max_score }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p style="color:#777;">Detailed guna breakdown not available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Guna Milan Label -->
+    <div class="card">
+        <div class="result-item">
+            <strong>Guna Milan Status:</strong>
+            {% if match and match.guna_milan %}
+                <span class="badge green">{{ match.guna_milan }}</span>
+            {% else %}
+                <span class="badge gray">Not Calculated</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="text-align:center;">
+        <a class="back-link" href="{{ url_for('astrology') }}">
+            ⬅ Back to Astrology
+        </a>
+    </div>
+
+    <div class="footer-note">
+        Compatibility calculated using traditional Ashta Koota system enhanced with AI compatibility logic.
+    </div>
+
+</div>
 
 </body>
 </html>
