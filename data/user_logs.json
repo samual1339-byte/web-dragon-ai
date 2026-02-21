@@ -1309,5 +1309,128 @@
         "Mangal Dosha"
       ]
     }
+  },
+  {
+    "time": "2026-02-21 08:37:14",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:37:23",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:37:23",
+    "ip": "system",
+    "page": "generate_kundali",
+    "query": null,
+    "extra_data": {
+      "name": "sudhir",
+      "dob": "1983-12-12",
+      "tob": "13:58",
+      "place": "amritsar",
+      "lagna": "Taurus",
+      "yogas": [],
+      "doshas": []
+    }
+  },
+  {
+    "time": "2026-02-21 08:37:39",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:37:49",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:37:59",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:37:59",
+    "ip": "system",
+    "page": "generate_kundali",
+    "query": null,
+    "extra_data": {
+      "name": "sudhir",
+      "dob": "1983-12-12",
+      "tob": "13:58",
+      "place": "amritsar",
+      "lagna": "Taurus",
+      "yogas": [],
+      "doshas": []
+    }
+  },
+  {
+    "time": "2026-02-21 08:38:46",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:38:56",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:38:56",
+    "ip": "system",
+    "page": "generate_kundali",
+    "query": null,
+    "extra_data": {
+      "name": "sudhir",
+      "dob": "1983-12-12",
+      "tob": "13:58",
+      "place": "amritsar",
+      "lagna": "Taurus",
+      "yogas": [],
+      "doshas": []
+    }
+  },
+  {
+    "time": "2026-02-21 08:39:35",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:39:45",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-21 08:39:45",
+    "ip": "system",
+    "page": "generate_kundali",
+    "query": null,
+    "extra_data": {
+      "name": "sudhir",
+      "dob": "1983-12-12",
+      "tob": "13:58",
+      "place": "amritsar",
+      "lagna": "Taurus",
+      "yogas": [],
+      "doshas": []
+    }
   }
 ]
