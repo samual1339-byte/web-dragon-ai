@@ -1,6 +1,13 @@
 def calculate_risk(karmic, dosha, debt_cycle=None, pitru=None):
+    """
+    Deterministic Risk Calculation Engine.
+    Structure-aware.
+    Severity-aware.
+    Stable across environments.
+    """
 
-    score = 0
+    total_score = 0
+
     breakdown = {
         "karmic_risk": 0,
         "dosha_risk": 0,
@@ -9,61 +16,91 @@ def calculate_risk(karmic, dosha, debt_cycle=None, pitru=None):
     }
 
     # --------------------------------------------------
-    # 1️⃣ KARMIC RISK
+    # 1️⃣ KARMIC RISK (Only count active flags)
     # --------------------------------------------------
     if isinstance(karmic, dict) and karmic:
-        karmic_score = len(karmic) * 2
-        score += karmic_score
+
+        active_karmic = [
+            key for key, value in karmic.items()
+            if value not in (None, False, {}, [])
+        ]
+
+        karmic_score = len(active_karmic) * 2
         breakdown["karmic_risk"] = karmic_score
+        total_score += karmic_score
 
     # --------------------------------------------------
-    # 2️⃣ DOSHA RISK
+    # 2️⃣ DOSHA RISK (Structured evaluation)
     # --------------------------------------------------
     if isinstance(dosha, dict) and dosha:
-        dosha_score = len(dosha) * 3
-        score += dosha_score
+
+        dosha_score = 0
+
+        # Pitru dosha handled separately below
+        for key, value in dosha.items():
+
+            if isinstance(value, dict):
+                if value.get("active") is True:
+                    dosha_score += 4
+            elif key.startswith("is_") and value is True:
+                dosha_score += 4
+
         breakdown["dosha_risk"] = dosha_score
+        total_score += dosha_score
 
     # --------------------------------------------------
-    # 3️⃣ DEBT CYCLE SEVERITY
+    # 3️⃣ DEBT CYCLE RISK
     # --------------------------------------------------
-    if debt_cycle and isinstance(debt_cycle, dict):
+    if isinstance(debt_cycle, dict):
+
         rin_scores = debt_cycle.get("rin_severity_score", {})
-        for rin, value in rin_scores.items():
-            debt_points = value * 2
-            score += debt_points
-            breakdown["debt_cycle_risk"] += debt_points
+
+        if isinstance(rin_scores, dict):
+            for rin in sorted(rin_scores.keys()):
+                value = rin_scores.get(rin)
+
+                if isinstance(value, (int, float)) and value > 0:
+                    debt_points = int(value) * 2
+                    breakdown["debt_cycle_risk"] += debt_points
+                    total_score += debt_points
 
     # --------------------------------------------------
-    # 4️⃣ PITRU DOSHA SEVERITY
+    # 4️⃣ PITRU DOSHA SEVERITY (Structured)
     # --------------------------------------------------
-    if pitru and isinstance(pitru, dict):
-        severity = pitru.get("severity")
+    if isinstance(pitru, dict):
+
+        severity = pitru.get("severity", "None")
+
         if severity == "High":
-            score += 10
             breakdown["pitru_risk"] = 10
+            total_score += 10
+        elif severity == "Elevated":
+            breakdown["pitru_risk"] = 7
+            total_score += 7
         elif severity == "Moderate":
-            score += 5
             breakdown["pitru_risk"] = 5
+            total_score += 5
 
     # --------------------------------------------------
-    # 5️⃣ NORMALIZATION
+    # 5️⃣ NORMALIZATION SCALE
     # --------------------------------------------------
-    if score >= 30:
+    if total_score >= 40:
+        level = "Critical"
+    elif total_score >= 30:
         level = "Very High"
-    elif score >= 20:
+    elif total_score >= 20:
         level = "High"
-    elif score >= 10:
+    elif total_score >= 10:
         level = "Moderate"
     else:
         level = "Low"
 
     # --------------------------------------------------
-    # 6️⃣ RETURN STRUCTURE (Backward Safe)
+    # 6️⃣ FINAL STRUCTURED OUTPUT
     # --------------------------------------------------
 
     return {
-        "risk_level": level,          # OLD style equivalent
-        "risk_score": score,          # NEW numeric score
-        "risk_breakdown": breakdown   # Detailed intelligence
+        "risk_level": level,
+        "risk_score": int(total_score),
+        "risk_breakdown": breakdown
     }
