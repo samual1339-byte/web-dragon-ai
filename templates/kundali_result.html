@@ -4,40 +4,134 @@
     <title>Kundali Result</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        body { padding: 30px; font-family: Arial; background:#f4f4f4; }
-        h1 { margin-bottom: 20px; }
-        .section { margin-bottom: 35px; }
-        .card {
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.08);
+        body {
+            padding: 40px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #222;
         }
-        ul { list-style:none; padding-left:0; }
-        li { padding:6px 0; }
-        .highlight { color:#d63384; font-weight:bold; }
-        .good { color:green; font-weight:bold; }
-        .bad { color:red; font-weight:bold; }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        .highlight {
+            color: #d63384;
+            font-weight: bold;
+        }
+
+        .good {
+            color: #1e7e34;
+            font-weight: bold;
+        }
+
+        .bad {
+            color: #c82333;
+            font-weight: bold;
+        }
+
+        .neutral {
+            color: #856404;
+            font-weight: bold;
+        }
+
+        .risk-box {
+            padding: 15px;
+            border-radius: 8px;
+            background: #fff3cd;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #343a40;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .back-btn:hover {
+            background: #212529;
+        }
     </style>
 </head>
+
 <body>
 
 <h1>🔮 Complete Kundali Analysis</h1>
 
-<!-- ================= PLANETS ================= -->
+<!-- ================= PLANETARY POSITIONS ================= -->
 <div class="section card">
-<h2>🕉 Planetary Positions</h2>
+<h2>🕉 Planetary Positions & House Impact</h2>
 
 {% if kundali and kundali.planets %}
 <ul>
-    {% for planet, info in kundali.planets.items() %}
-        <li>
-            <strong>{{ planet }}</strong> :
-            {{ info.rashi }} ({{ info.degree }}°) |
-            House {{ info.house }} |
-            Strength: <span class="highlight">{{ info.strength }}</span>
-        </li>
-    {% endfor %}
+{% for planet, info in kundali.planets.items() %}
+<li>
+    <strong>{{ planet }}</strong> :
+    {{ info.rashi if info.rashi else "Unknown Sign" }}
+    ({{ info.degree if info.degree else "0" }}°) |
+    House {{ info.house if info.house else "?" }} |
+
+    Strength:
+    <span class="highlight">
+        {{ info.strength if info.strength else "Average" }}
+    </span>
+
+    {% if info.impact %}
+        {% if info.impact == "Good" %}
+            | Impact: <span class="good">Favourable</span>
+        {% elif info.impact == "Bad" %}
+            | Impact: <span class="bad">Challenging</span>
+        {% else %}
+            | Impact: <span class="neutral">Neutral</span>
+        {% endif %}
+    {% endif %}
+
+    {% if info.house_effect %}
+        <br>
+        <small>{{ info.house_effect }}</small>
+    {% endif %}
+
+    {% if info.remedy %}
+        <br>
+        <span class="highlight">Remedy:</span>
+        {{ info.remedy }}
+    {% endif %}
+</li>
+{% endfor %}
 </ul>
 {% else %}
 <p>No planetary data available.</p>
@@ -62,9 +156,9 @@
 <h2>✨ Major Yogas</h2>
 {% if kundali and kundali.yogas %}
 <ul>
-    {% for yoga in kundali.yogas %}
-        <li class="good">{{ yoga }}</li>
-    {% endfor %}
+{% for yoga in kundali.yogas %}
+<li class="good">{{ yoga }}</li>
+{% endfor %}
 </ul>
 {% else %}
 <p>No major yogas detected.</p>
@@ -77,12 +171,38 @@
 <h2>⚠ Dosha Analysis</h2>
 {% if kundali and kundali.doshas %}
 <ul>
-    {% for dosha in kundali.doshas %}
-        <li class="bad">{{ dosha }}</li>
-    {% endfor %}
+{% for dosha in kundali.doshas %}
+<li class="bad">{{ dosha }}</li>
+{% endfor %}
 </ul>
 {% else %}
 <p>No significant dosha detected.</p>
+{% endif %}
+</div>
+
+
+<!-- ================= RISK SCORE ================= -->
+{% if kundali and kundali.risk_score %}
+<div class="section card">
+<h2>📊 Overall Risk Evaluation</h2>
+<div class="risk-box">
+Risk Score: {{ kundali.risk_score }}
+</div>
+</div>
+{% endif %}
+
+
+<!-- ================= REMEDIES ================= -->
+<div class="section card">
+<h2>🪔 Lal Kitab Remedies</h2>
+{% if kundali and kundali.remedies %}
+<ul>
+{% for remedy in kundali.remedies %}
+<li class="highlight">{{ remedy }}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No specific remedies suggested.</p>
 {% endif %}
 </div>
 
@@ -102,10 +222,10 @@
 <div class="section card">
 <h2>🌐 Live Digital Insight</h2>
 {% if serp and serp|length > 0 %}
-    <p><strong>{{ serp[0].title }}</strong></p>
-    <p>{{ serp[0].snippet }}</p>
+<p><strong>{{ serp[0].title }}</strong></p>
+<p>{{ serp[0].snippet }}</p>
 {% else %}
-    <p>No live insight available.</p>
+<p>No live insight available.</p>
 {% endif %}
 </div>
 
@@ -114,12 +234,12 @@
 {% if data %}
 <div class="section card">
 <h2>❤️ Guna Milan Result</h2>
-<p><strong>Score:</strong> {{ data.score }}</p>
-<p><strong>Verdict:</strong> {{ data.verdict }}</p>
+<p><strong>Score:</strong> {{ data.score if data.score else "N/A" }}</p>
+<p><strong>Verdict:</strong> {{ data.verdict if data.verdict else "Pending" }}</p>
 </div>
 {% endif %}
 
-<a href="/astrology">⬅ Back</a>
+<a href="/astrology" class="back-btn">⬅ Back to Astrology</a>
 
 </body>
 </html>

@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Matchmaking Result</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <style>
@@ -14,7 +13,7 @@
         }
 
         .container {
-            max-width: 950px;
+            max-width: 1000px;
             margin: auto;
         }
 
@@ -26,15 +25,7 @@
             margin-bottom: 20px;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .result-item {
-            margin: 15px 0;
-            font-size: 18px;
-        }
+        h2 { text-align: center; margin-bottom: 30px; }
 
         .badge {
             display: inline-block;
@@ -49,6 +40,22 @@
         .red { background-color: #fdecea; color: #c62828; }
         .gray { background-color: #eceff1; color: #546e7a; }
 
+        .progress-container {
+            background:#e0e0e0;
+            border-radius:20px;
+            height:22px;
+            margin-top:10px;
+        }
+
+        .progress-bar {
+            height:22px;
+            border-radius:20px;
+            text-align:center;
+            color:white;
+            font-size:12px;
+            line-height:22px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -61,23 +68,24 @@
             border-bottom: 1px solid #ddd;
         }
 
-        th {
-            background-color: #f1f3f6;
-        }
+        th { background-color: #f1f3f6; }
 
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            color: #5e35b1;
+        .btn {
+            display:inline-block;
+            padding:10px 18px;
+            background:#5e35b1;
+            color:white;
+            border-radius:6px;
+            text-decoration:none;
+            font-weight:bold;
+            margin-top:10px;
         }
 
         .footer-note {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 13px;
-            color: #777;
+            text-align:center;
+            margin-top:30px;
+            font-size:13px;
+            color:#777;
         }
     </style>
 </head>
@@ -85,85 +93,142 @@
 
 <div class="container">
 
-    <h2>❤️ Matchmaking Compatibility Report</h2>
+<h2>❤️ Advanced Matchmaking Compatibility Report</h2>
 
-    <!-- Main Summary Card -->
-    <div class="card">
+{% set score = match.score if match and match.score is not none else None %}
+{% set verdict = match.verdict if match and match.verdict else "Pending" %}
+{% set guna_breakdown = match.guna_breakdown if match and match.guna_breakdown else {} %}
+{% set dosha_flags = match.dosha_flags if match and match.dosha_flags else {} %}
+{% set marriage_risk = match.marriage_risk if match and match.marriage_risk else None %}
 
-        <div class="result-item">
-            <strong>Total Score:</strong>
-            {% if match and match.score is not none %}
-                {% if match.score >= 28 %}
-                    <span class="badge green">{{ match.score }} / 36</span>
-                {% elif match.score >= 18 %}
-                    <span class="badge orange">{{ match.score }} / 36</span>
-                {% else %}
-                    <span class="badge red">{{ match.score }} / 36</span>
-                {% endif %}
-            {% else %}
-                <span class="badge gray">N/A</span>
-            {% endif %}
-        </div>
+<!-- SUMMARY -->
+<div class="card">
 
-        <div class="result-item">
-            <strong>Verdict:</strong>
-            {% if match and match.verdict %}
-                <span class="badge green">{{ match.verdict }}</span>
-            {% else %}
-                <span class="badge gray">Pending Analysis</span>
-            {% endif %}
-        </div>
-
-    </div>
-
-    <!-- Detailed Guna Breakdown -->
-    <div class="card">
-        <h3>🔍 Detailed Ashta Koota Breakdown</h3>
-
-        {% if match and match.guna_breakdown %}
-            <table>
-                <tr>
-                    <th>Koota</th>
-                    <th>Score</th>
-                    <th>Max</th>
-                </tr>
-
-                {% for koota, details in match.guna_breakdown.items() %}
-                <tr>
-                    <td>{{ koota }}</td>
-                    <td>{{ details.score }}</td>
-                    <td>{{ details.max_score }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+    <strong>Total Score:</strong>
+    {% if score is not none %}
+        {% if score >= 28 %}
+            <span class="badge green">{{ score }} / 36</span>
+        {% elif score >= 18 %}
+            <span class="badge orange">{{ score }} / 36</span>
         {% else %}
-            <p style="color:#777;">Detailed guna breakdown not available.</p>
+            <span class="badge red">{{ score }} / 36</span>
         {% endif %}
-    </div>
+    {% else %}
+        <span class="badge gray">N/A</span>
+    {% endif %}
 
-    <!-- Guna Milan Label -->
-    <div class="card">
-        <div class="result-item">
-            <strong>Guna Milan Status:</strong>
-            {% if match and match.guna_milan %}
-                <span class="badge green">{{ match.guna_milan }}</span>
-            {% else %}
-                <span class="badge gray">Not Calculated</span>
-            {% endif %}
+    {% if score is not none %}
+        {% set percentage = (score / 36) * 100 %}
+        <div class="progress-container">
+            <div class="progress-bar
+                {% if score >= 28 %}green
+                {% elif score >= 18 %}orange
+                {% else %}red
+                {% endif %}
+            " style="width: {{ percentage }}%;">
+                {{ score }}/36
+            </div>
         </div>
-    </div>
+    {% endif %}
 
-    <div style="text-align:center;">
-        <a class="back-link" href="{{ url_for('astrology') }}">
-            ⬅ Back to Astrology
-        </a>
-    </div>
-
-    <div class="footer-note">
-        Compatibility calculated using traditional Ashta Koota system enhanced with AI compatibility logic.
-    </div>
+    <p style="margin-top:15px;">
+        <strong>Verdict:</strong>
+        <span class="badge {% if score and score >= 28 %}green{% elif score and score >= 18 %}orange{% else %}gray{% endif %}">
+            {{ verdict }}
+        </span>
+    </p>
 
 </div>
 
+<!-- GUNA BREAKDOWN -->
+<div class="card">
+    <h3>🔍 Detailed Ashta Koota Breakdown</h3>
+
+    {% if guna_breakdown %}
+        <table>
+            <tr>
+                <th>Koota</th>
+                <th>Score</th>
+                <th>Max</th>
+            </tr>
+            {% for koota, details in guna_breakdown.items() %}
+            <tr>
+                <td>{{ koota|capitalize }}</td>
+                <td>{{ details.score if details.score is not none else 0 }}</td>
+                <td>{{ details.max_score if details.max_score is not none else 0 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p style="color:#777;">Breakdown data not available.</p>
+    {% endif %}
+</div>
+
+<!-- DOSHA COMPATIBILITY -->
+<div class="card">
+    <h3>🧿 Dosha Compatibility</h3>
+
+    {% if dosha_flags %}
+        {% for dosha, status in dosha_flags.items() %}
+            <p>{{ dosha|capitalize }} :
+                <span class="badge {% if status %}red{% else %}green{% endif %}">
+                    {% if status %}Present{% else %}Not Present{% endif %}
+                </span>
+            </p>
+        {% endfor %}
+    {% else %}
+        <p style="color:#777;">No major dosha conflict detected.</p>
+    {% endif %}
+</div>
+
+<!-- MARRIAGE RISK INDEX -->
+<div class="card">
+    <h3>⚠ Marriage Risk Index</h3>
+
+    {% if marriage_risk %}
+        <span class="badge 
+            {% if marriage_risk == 'Low' %}green
+            {% elif marriage_risk == 'Moderate' %}orange
+            {% else %}red
+            {% endif %}
+        ">
+            {{ marriage_risk }}
+        </span>
+    {% else %}
+        <span class="badge gray">Not Calculated</span>
+    {% endif %}
+</div>
+
+<!-- AI SUMMARY -->
+<div class="card">
+    <h3>🤖 AI Compatibility Insight</h3>
+
+    {% if score is not none %}
+        {% if score >= 28 %}
+            <p>This alliance shows strong traditional compatibility. Emotional, spiritual and practical harmony indicators are positive.</p>
+        {% elif score >= 18 %}
+            <p>The match shows moderate compatibility. Some effort and understanding may be required for long-term balance.</p>
+        {% else %}
+            <p>This pairing may face compatibility challenges. Professional astrological guidance is advised before proceeding.</p>
+        {% endif %}
+    {% else %}
+        <p>Compatibility insight unavailable.</p>
+    {% endif %}
+</div>
+
+<!-- DOWNLOAD BUTTON -->
+<div class="card" style="text-align:center;">
+    <a href="{{ url_for('download_pdf') }}" class="btn">📄 Download Full Matchmaking Report</a>
+</div>
+
+<div style="text-align:center;">
+    <a href="{{ url_for('astrology') }}">⬅ Back to Astrology</a>
+</div>
+
+<div class="footer-note">
+    Powered by Ashta Koota System + Lal Kitab Intelligence Engine
+</div>
+
+</div>
 </body>
 </html>
