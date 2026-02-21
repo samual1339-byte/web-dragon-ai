@@ -30,14 +30,6 @@ class LalKitabAutonomousEngine:
     # ======================================================
 
     def _stabilize_house_map(self, house_map):
-        """
-        Hard lock:
-        - Degree normalization (0–360)
-        - 2 decimal precision
-        - House as integer
-        - Deterministic ordering
-        - No mutation side effects
-        """
 
         stabilized = {}
 
@@ -58,7 +50,7 @@ class LalKitabAutonomousEngine:
         return dict(sorted(stabilized.items()))
 
     # ======================================================
-    # 🔥 INTERNAL ENHANCEMENT LAYER
+    # 🔥 PLANETARY INSIGHT LAYER
     # ======================================================
 
     def _generate_planetary_insight_layer(self, planet_activation):
@@ -67,14 +59,11 @@ class LalKitabAutonomousEngine:
 
         for planet, data in planet_activation.items():
 
-            risk_weight = 0
-
+            risk_weight = 1
             if data.get("risk_level") == "High":
                 risk_weight = 3
             elif data.get("risk_level") == "Medium":
                 risk_weight = 2
-            elif data.get("risk_level") == "Low":
-                risk_weight = 1
 
             advanced_layer[planet] = {
                 "house": data.get("house"),
@@ -82,14 +71,16 @@ class LalKitabAutonomousEngine:
                 "karmic_theme": data.get("karmic_theme"),
                 "positive_effects": data.get("positive_effects", []),
                 "negative_effects": data.get("negative_effects", []),
-                "hidden_effect": data.get("hidden_effect"),
-                "debt_type": data.get("debt_type"),
                 "risk_level": data.get("risk_level"),
                 "risk_weight": risk_weight,
-                "special_notes": data.get("special_notes", [])
+                "suggested_remedy": data.get("suggested_remedy")
             }
 
         return dict(sorted(advanced_layer.items()))
+
+    # ======================================================
+    # 🪔 REMEDY PRIORITY LAYER
+    # ======================================================
 
     def _generate_remedy_priority(self, remedies, planet_activation):
 
@@ -100,7 +91,7 @@ class LalKitabAutonomousEngine:
                 priority_score += 3
             elif data.get("risk_level") == "Medium":
                 priority_score += 2
-            elif data.get("risk_level") == "Low":
+            else:
                 priority_score += 1
 
         if priority_score >= 20:
@@ -119,93 +110,53 @@ class LalKitabAutonomousEngine:
         }
 
     # ======================================================
-    # 🔮 MAIN ENGINE (FULLY DETERMINISTIC)
+    # 🔮 MAIN ENGINE
     # ======================================================
 
     def generate_kundali(self):
 
-        # ----------------------------------------
-        # STEP 1 — Astronomy Calculation
-        # ----------------------------------------
         planets, lagna = get_astronomy_data(self.birth_data)
 
-        # ----------------------------------------
-        # STEP 2 — Map Planets to Houses
-        # ----------------------------------------
         raw_house_map = map_planets_to_houses(planets)
 
-        # ----------------------------------------
-        # 🔒 STABILIZATION APPLIED HERE
-        # ----------------------------------------
         house_map = self._stabilize_house_map(raw_house_map)
 
-        # Deep copy for safety (no mutation by engines)
-        safe_house_map = copy.deepcopy(house_map)
+        safe_map = copy.deepcopy(house_map)
 
-        # ----------------------------------------
-        # STEP 3 — Core Karmic Structure
-        # ----------------------------------------
-        karmic = evaluate_karmic_structure(copy.deepcopy(safe_house_map))
+        karmic = evaluate_karmic_structure(copy.deepcopy(safe_map))
 
-        # ----------------------------------------
-        # STEP 4 — House Exchange Detection
-        # ----------------------------------------
-        house_exchange = detect_house_exchange(copy.deepcopy(safe_house_map))
+        house_exchange = detect_house_exchange(copy.deepcopy(safe_map))
 
-        # ----------------------------------------
-        # STEP 5 — Debt Cycle Evaluation
-        # ----------------------------------------
         debt_cycle = evaluate_debt_cycle(
-            copy.deepcopy(safe_house_map),
+            copy.deepcopy(safe_map),
             PLANETARY_RULES_DB
         )
 
-        # ----------------------------------------
-        # STEP 6 — Planet Activation Layer
-        # ----------------------------------------
         planet_activation = evaluate_planet_activation(
-            copy.deepcopy(safe_house_map),
+            copy.deepcopy(safe_map),
             PLANETARY_RULES_DB
         )
 
-        # ----------------------------------------
-        # STEP 7 — Deep Insight Enhancement
-        # ----------------------------------------
         planetary_insight = self._generate_planetary_insight_layer(
             planet_activation
         )
 
-        # ----------------------------------------
-        # STEP 8 — Dosha Engine
-        # ----------------------------------------
-        dosha = evaluate_dosha(copy.deepcopy(safe_house_map))
+        dosha = evaluate_dosha(copy.deepcopy(safe_map))
 
-        # ----------------------------------------
-        # STEP 9 — Pitru Dosha
-        # ----------------------------------------
         pitru_dosha = evaluate_pitru_dosha_lalkitab(
-            copy.deepcopy(safe_house_map)
+            copy.deepcopy(safe_map)
         )
 
-        # ----------------------------------------
-        # STEP 10 — Remedy Generation
-        # ----------------------------------------
         remedies = generate_remedies(
             dosha or {},
             debt_cycle or {}
         )
 
-        # ----------------------------------------
-        # STEP 11 — Remedy Priority Intelligence
-        # ----------------------------------------
         remedy_priority = self._generate_remedy_priority(
             remedies,
             planet_activation
         )
 
-        # ----------------------------------------
-        # STEP 12 — Risk Score
-        # ----------------------------------------
         risk = calculate_risk(
             karmic or {},
             dosha or {},
@@ -213,10 +164,33 @@ class LalKitabAutonomousEngine:
             pitru_dosha or {}
         )
 
-        # ----------------------------------------
-        # FINAL OUTPUT (STABLE & ORDERED)
-        # ----------------------------------------
+        # ======================================================
+        # 🧠 SIMPLE AUTO INTERPRETATION GENERATOR
+        # ======================================================
+
+        interpretation = (
+            f"Lagna in {lagna}. "
+            f"Overall Risk Level: {risk.get('risk_level')}. "
+            f"Remedy Priority: {remedy_priority.get('priority_label')}."
+        )
+
+        # ======================================================
+        # ✅ FINAL OUTPUT (UI COMPATIBLE + STRUCTURED)
+        # ======================================================
+
         return {
+
+            # ===== UI Compatible Keys =====
+            "planets": house_map,
+            "lagna": lagna,
+            "planetary_insight": planetary_insight,
+            "doshas": list(dosha.keys()) if isinstance(dosha, dict) else [],
+            "risk_score": risk.get("risk_score"),
+            "risk_level": risk.get("risk_level"),
+            "remedies": remedies,
+            "interpretation": interpretation,
+
+            # ===== Advanced Structured Blocks =====
             "Lagna": lagna,
             "Planet_Houses": house_map,
             "Karmic_Flags": karmic,

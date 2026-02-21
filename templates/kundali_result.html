@@ -11,18 +11,10 @@
             color: #222;
         }
 
-        h1 {
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
+        h1 { margin-bottom: 30px; font-size: 28px; }
+        h2 { margin-bottom: 15px; }
 
-        h2 {
-            margin-bottom: 15px;
-        }
-
-        .section {
-            margin-bottom: 35px;
-        }
+        .section { margin-bottom: 35px; }
 
         .card {
             background: white;
@@ -31,39 +23,19 @@
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
         }
 
-        ul {
-            list-style: none;
-            padding-left: 0;
-        }
+        ul { list-style: none; padding-left: 0; }
 
         li {
             padding: 8px 0;
             border-bottom: 1px solid #eee;
         }
 
-        li:last-child {
-            border-bottom: none;
-        }
+        li:last-child { border-bottom: none; }
 
-        .highlight {
-            color: #d63384;
-            font-weight: bold;
-        }
-
-        .good {
-            color: #1e7e34;
-            font-weight: bold;
-        }
-
-        .bad {
-            color: #c82333;
-            font-weight: bold;
-        }
-
-        .neutral {
-            color: #856404;
-            font-weight: bold;
-        }
+        .highlight { color: #d63384; font-weight: bold; }
+        .good { color: #1e7e34; font-weight: bold; }
+        .bad { color: #c82333; font-weight: bold; }
+        .neutral { color: #856404; font-weight: bold; }
 
         .risk-box {
             padding: 15px;
@@ -71,6 +43,17 @@
             background: #fff3cd;
             font-weight: bold;
         }
+
+        .planet-block {
+            padding: 15px;
+            border-radius: 10px;
+            background: #fafafa;
+            margin-bottom: 15px;
+        }
+
+        .risk-low { color: #28a745; font-weight: bold; }
+        .risk-medium { color: #ffc107; font-weight: bold; }
+        .risk-high { color: #dc3545; font-weight: bold; }
 
         .back-btn {
             display: inline-block;
@@ -82,9 +65,7 @@
             border-radius: 6px;
         }
 
-        .back-btn:hover {
-            background: #212529;
-        }
+        .back-btn:hover { background: #212529; }
     </style>
 </head>
 
@@ -94,49 +75,76 @@
 
 <!-- ================= PLANETARY POSITIONS ================= -->
 <div class="section card">
-<h2>🕉 Planetary Positions & House Impact</h2>
+<h2>🕉 Planetary Positions & Core Details</h2>
 
 {% if kundali and kundali.planets %}
 <ul>
 {% for planet, info in kundali.planets.items() %}
 <li>
     <strong>{{ planet }}</strong> :
-    {{ info.rashi if info.rashi else "Unknown Sign" }}
-    ({{ info.degree if info.degree else "0" }}°) |
-    House {{ info.house if info.house else "?" }} |
-
-    Strength:
-    <span class="highlight">
-        {{ info.strength if info.strength else "Average" }}
-    </span>
-
-    {% if info.impact %}
-        {% if info.impact == "Good" %}
-            | Impact: <span class="good">Favourable</span>
-        {% elif info.impact == "Bad" %}
-            | Impact: <span class="bad">Challenging</span>
-        {% else %}
-            | Impact: <span class="neutral">Neutral</span>
-        {% endif %}
-    {% endif %}
-
-    {% if info.house_effect %}
-        <br>
-        <small>{{ info.house_effect }}</small>
-    {% endif %}
-
-    {% if info.remedy %}
-        <br>
-        <span class="highlight">Remedy:</span>
-        {{ info.remedy }}
-    {% endif %}
+    {{ info.rashi }} ({{ info.degree }}°) |
+    House {{ info.house }}
 </li>
 {% endfor %}
 </ul>
 {% else %}
 <p>No planetary data available.</p>
 {% endif %}
+</div>
 
+
+<!-- ================= PLANETARY INSIGHT BLOCK ================= -->
+<div class="section card">
+<h2>🔎 Detailed Planetary Interpretation</h2>
+
+{% if kundali and kundali.planetary_insight %}
+{% for planet, insight in kundali.planetary_insight.items() %}
+
+<div class="planet-block">
+    <h3>{{ planet }} — House {{ insight.house }}</h3>
+
+    <p><strong>Core Nature:</strong> {{ insight.core_nature }}</p>
+
+    <p><strong>Positive Effects:</strong></p>
+    <ul>
+        {% for p in insight.positive_effects %}
+            <li class="good">✔ {{ p }}</li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>Challenges:</strong></p>
+    <ul>
+        {% for n in insight.negative_effects %}
+            <li class="bad">⚠ {{ n }}</li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>Karmic Theme:</strong> {{ insight.karmic_theme }}</p>
+
+    <p>
+        <strong>Risk Level:</strong>
+        {% if insight.risk_level == "High" %}
+            <span class="risk-high">High</span>
+        {% elif insight.risk_level == "Medium" %}
+            <span class="risk-medium">Medium</span>
+        {% else %}
+            <span class="risk-low">Low</span>
+        {% endif %}
+    </p>
+
+    {% if insight.suggested_remedy %}
+    <p>
+        <span class="highlight">Suggested Remedy:</span>
+        {{ insight.suggested_remedy }}
+    </p>
+    {% endif %}
+
+</div>
+
+{% endfor %}
+{% else %}
+<p>Detailed planetary interpretation not available.</p>
+{% endif %}
 </div>
 
 
@@ -147,21 +155,6 @@
 <p><strong>{{ kundali.lagna }}</strong></p>
 {% else %}
 <p>Not calculated.</p>
-{% endif %}
-</div>
-
-
-<!-- ================= YOGAS ================= -->
-<div class="section card">
-<h2>✨ Major Yogas</h2>
-{% if kundali and kundali.yogas %}
-<ul>
-{% for yoga in kundali.yogas %}
-<li class="good">{{ yoga }}</li>
-{% endfor %}
-</ul>
-{% else %}
-<p>No major yogas detected.</p>
 {% endif %}
 </div>
 
@@ -207,9 +200,9 @@ Risk Score: {{ kundali.risk_score }}
 </div>
 
 
-<!-- ================= AI INTERPRETATION ================= -->
+<!-- ================= INTERPRETATION ================= -->
 <div class="section card">
-<h2>🧠 AI Personality Interpretation</h2>
+<h2>🧠 Personality & Life Interpretation</h2>
 {% if kundali and kundali.interpretation %}
 <p>{{ kundali.interpretation }}</p>
 {% else %}
@@ -217,27 +210,6 @@ Risk Score: {{ kundali.risk_score }}
 {% endif %}
 </div>
 
-
-<!-- ================= DIGITAL INSIGHT ================= -->
-<div class="section card">
-<h2>🌐 Live Digital Insight</h2>
-{% if serp and serp|length > 0 %}
-<p><strong>{{ serp[0].title }}</strong></p>
-<p>{{ serp[0].snippet }}</p>
-{% else %}
-<p>No live insight available.</p>
-{% endif %}
-</div>
-
-
-<!-- ================= GUNA MILAN ================= -->
-{% if data %}
-<div class="section card">
-<h2>❤️ Guna Milan Result</h2>
-<p><strong>Score:</strong> {{ data.score if data.score else "N/A" }}</p>
-<p><strong>Verdict:</strong> {{ data.verdict if data.verdict else "Pending" }}</p>
-</div>
-{% endif %}
 
 <a href="/astrology" class="back-btn">⬅ Back to Astrology</a>
 
