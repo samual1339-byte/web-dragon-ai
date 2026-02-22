@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 from .1_astronomy_bridge import get_astronomy_data
 from .2_house_mapper import map_planets_to_houses
@@ -25,8 +26,9 @@ class LalKitabAutonomousEngine:
             raise TypeError("birth_data must be dictionary.")
         self.birth_data = birth_data
 
+
     # ======================================================
-    # 🔒 GLOBAL STABILIZATION LAYER
+    # 🔒 GLOBAL STABILIZATION
     # ======================================================
 
     def _stabilize_house_map(self, house_map):
@@ -49,34 +51,50 @@ class LalKitabAutonomousEngine:
 
         return dict(sorted(stabilized.items()))
 
+
     # ======================================================
-    # 🔥 PLANETARY INSIGHT LAYER
+    # 🔥 PLANETARY INSIGHT LAYER (FIXED EMPTY ISSUE)
     # ======================================================
 
     def _generate_planetary_insight_layer(self, planet_activation):
 
         advanced_layer = {}
 
+        if not planet_activation:
+            return {}
+
+        # If activation is list → convert to dict
+        if isinstance(planet_activation, list):
+            activation_dict = {}
+            for item in planet_activation:
+                planet = item.get("planet")
+                if planet:
+                    activation_dict[planet] = item
+            planet_activation = activation_dict
+
         for planet, data in planet_activation.items():
 
+            risk_level = data.get("risk_level", "Low")
+
             risk_weight = 1
-            if data.get("risk_level") == "High":
+            if risk_level == "High":
                 risk_weight = 3
-            elif data.get("risk_level") == "Medium":
+            elif risk_level == "Medium":
                 risk_weight = 2
 
             advanced_layer[planet] = {
                 "house": data.get("house"),
-                "core_nature": data.get("core_nature"),
-                "karmic_theme": data.get("karmic_theme"),
+                "core_nature": data.get("core_nature", "Neutral"),
+                "karmic_theme": data.get("karmic_theme", "General karmic influence"),
                 "positive_effects": data.get("positive_effects", []),
                 "negative_effects": data.get("negative_effects", []),
-                "risk_level": data.get("risk_level"),
+                "risk_level": risk_level,
                 "risk_weight": risk_weight,
-                "suggested_remedy": data.get("suggested_remedy")
+                "suggested_remedy": data.get("suggested_remedy", None)
             }
 
         return dict(sorted(advanced_layer.items()))
+
 
     # ======================================================
     # 🪔 REMEDY PRIORITY LAYER
@@ -86,13 +104,25 @@ class LalKitabAutonomousEngine:
 
         priority_score = 0
 
-        for _, data in planet_activation.items():
-            if data.get("risk_level") == "High":
-                priority_score += 3
-            elif data.get("risk_level") == "Medium":
-                priority_score += 2
-            else:
-                priority_score += 1
+        if isinstance(planet_activation, list):
+            for item in planet_activation:
+                level = item.get("risk_level", "Low")
+                if level == "High":
+                    priority_score += 3
+                elif level == "Medium":
+                    priority_score += 2
+                else:
+                    priority_score += 1
+
+        elif isinstance(planet_activation, dict):
+            for _, data in planet_activation.items():
+                level = data.get("risk_level", "Low")
+                if level == "High":
+                    priority_score += 3
+                elif level == "Medium":
+                    priority_score += 2
+                else:
+                    priority_score += 1
 
         if priority_score >= 20:
             priority_label = "Critical"
@@ -108,6 +138,53 @@ class LalKitabAutonomousEngine:
             "priority_label": priority_label,
             "recommended_remedies": remedies or []
         }
+
+
+    # ======================================================
+    # 🧠 DEEP INTERPRETATION ENGINE (EXPANDED)
+    # ======================================================
+
+    def _generate_deep_interpretation(
+        self,
+        lagna,
+        house_map,
+        karmic,
+        dosha,
+        debt_cycle,
+        risk
+    ):
+
+        interpretation_blocks = []
+
+        interpretation_blocks.append(
+            f"Birth Lagna is {lagna}. This defines the psychological core "
+            f"and karmic orientation of the native."
+        )
+
+        for planet, data in house_map.items():
+            house = data.get("house")
+            interpretation_blocks.append(
+                f"{planet} placed in house {house} influences life themes "
+                f"related to that house domain."
+            )
+
+        if dosha:
+            interpretation_blocks.append(
+                f"Detected Doshas: {', '.join(dosha.keys())}."
+            )
+
+        if debt_cycle:
+            interpretation_blocks.append(
+                "Karmic debt cycles indicate unfinished past-life obligations."
+            )
+
+        interpretation_blocks.append(
+            f"Overall Risk Level calculated as {risk.get('risk_level')} "
+            f"with risk score {risk.get('risk_score')}."
+        )
+
+        return " ".join(interpretation_blocks)
+
 
     # ======================================================
     # 🔮 MAIN ENGINE
@@ -132,9 +209,12 @@ class LalKitabAutonomousEngine:
             PLANETARY_RULES_DB
         )
 
+        # IMPORTANT FIX:
+        current_age = self.birth_data.get("current_age", 30)
+
         planet_activation = evaluate_planet_activation(
-            copy.deepcopy(safe_map),
-            PLANETARY_RULES_DB
+            current_age,
+            {p: d.get("house") for p, d in safe_map.items()}
         )
 
         planetary_insight = self._generate_planetary_insight_layer(
@@ -164,23 +244,17 @@ class LalKitabAutonomousEngine:
             pitru_dosha or {}
         )
 
-        # ======================================================
-        # 🧠 SIMPLE AUTO INTERPRETATION GENERATOR
-        # ======================================================
-
-        interpretation = (
-            f"Lagna in {lagna}. "
-            f"Overall Risk Level: {risk.get('risk_level')}. "
-            f"Remedy Priority: {remedy_priority.get('priority_label')}."
+        interpretation = self._generate_deep_interpretation(
+            lagna,
+            house_map,
+            karmic,
+            dosha,
+            debt_cycle,
+            risk
         )
-
-        # ======================================================
-        # ✅ FINAL OUTPUT (UI COMPATIBLE + STRUCTURED)
-        # ======================================================
 
         return {
 
-            # ===== UI Compatible Keys =====
             "planets": house_map,
             "lagna": lagna,
             "planetary_insight": planetary_insight,
@@ -190,7 +264,6 @@ class LalKitabAutonomousEngine:
             "remedies": remedies,
             "interpretation": interpretation,
 
-            # ===== Advanced Structured Blocks =====
             "Lagna": lagna,
             "Planet_Houses": house_map,
             "Karmic_Flags": karmic,

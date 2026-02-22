@@ -1,92 +1,105 @@
-class AdvancedKarmicLogic:
+import copy
 
-    def __init__(self, kundali, planetary_db):
-        self.kundali = kundali
-        self.db = planetary_db
 
-    # ===============================
-    # HOUSE EXCHANGE LOGIC
-    # ===============================
+# ==========================================================
+# 🔥 KARMIC STRUCTURE EVALUATION
+# ==========================================================
 
-    def detect_house_exchange(self):
-        exchanges = []
+def evaluate_karmic_structure(house_map):
 
-        for p1, h1 in self.kundali.items():
-            for p2, h2 in self.kundali.items():
-                if p1 != p2:
-                    if h1 == self.kundali.get(p2) and h2 == self.kundali.get(p1):
-                        exchanges.append({
-                            "planet_1": p1,
-                            "planet_2": p2,
-                            "type": "Direct Exchange"
-                        })
+    karmic_flags = {}
 
-        return exchanges
+    for planet, data in house_map.items():
 
-    # ===============================
-    # DEBT CYCLE LOGIC
-    # ===============================
+        house = data.get("house")
 
-    def evaluate_debt_cycle(self):
-        rin_report = {}
-        score_map = {"Low": 1, "Medium": 2, "High": 3}
+        if house in [6, 8, 12]:
+            karmic_flags[planet] = {
+                "house": house,
+                "karmic_intensity": "High",
+                "theme": "Past life unresolved karma"
+            }
 
-        for planet, house in self.kundali.items():
-            rule = self.db.get(planet, {}).get(house, {})
-            rin = rule.get("debt_type")
+        elif house in [1, 5, 9]:
+            karmic_flags[planet] = {
+                "house": house,
+                "karmic_intensity": "Positive",
+                "theme": "Dharma activation"
+            }
 
-            if rin:
-                rin_report.setdefault(rin, []).append({
-                    "planet": planet,
-                    "house": house,
-                    "risk": rule.get("risk_level"),
-                    "karmic_theme": rule.get("karmic_theme")
-                })
+        else:
+            karmic_flags[planet] = {
+                "house": house,
+                "karmic_intensity": "Neutral",
+                "theme": "Material life experience"
+            }
 
-        severity = {}
-        for rin, items in rin_report.items():
-            total = sum(score_map.get(item["risk"], 1) for item in items)
-            severity[rin] = total
+    return dict(sorted(karmic_flags.items()))
 
-        return {
-            "rin_details": rin_report,
-            "rin_severity_score": severity
-        }
+
+# ==========================================================
+# 🔁 HOUSE EXCHANGE LOGIC
+# ==========================================================
 
 def detect_house_exchange(house_map):
+
     exchanges = []
 
-    for p1, h1 in house_map.items():
-        for p2, h2 in house_map.items():
-            if p1 != p2:
-                if h1 == house_map.get(p2) and h2 == house_map.get(p1):
-                    exchanges.append({
-                        "planet_1": p1,
-                        "planet_2": p2,
-                        "type": "Direct Exchange"
-                    })
+    planets = list(house_map.keys())
+
+    for i in range(len(planets)):
+        for j in range(i + 1, len(planets)):
+
+            p1 = planets[i]
+            p2 = planets[j]
+
+            h1 = house_map[p1].get("house")
+            h2 = house_map[p2].get("house")
+
+            if h1 == h2:
+                continue
+
+            if (
+                house_map.get(p1, {}).get("house") ==
+                house_map.get(p2, {}).get("house")
+            ):
+                exchanges.append({
+                    "planet_1": p1,
+                    "planet_2": p2,
+                    "type": "Direct Exchange"
+                })
 
     return exchanges
 
+
+# ==========================================================
+# 💰 DEBT CYCLE (RIN LOGIC)
+# ==========================================================
 
 def evaluate_debt_cycle(house_map, planetary_db):
 
     rin_report = {}
     score_map = {"Low": 1, "Medium": 2, "High": 3}
 
-    for planet, house in house_map.items():
+    for planet, data in house_map.items():
+
+        house = data.get("house")
+
         rule = planetary_db.get(planet, {}).get(house, {})
+
         rin = rule.get("debt_type")
 
         if rin:
+
             rin_report.setdefault(rin, []).append({
                 "planet": planet,
                 "house": house,
-                "risk": rule.get("risk_level"),
-                "karmic_theme": rule.get("karmic_theme")
+                "risk": rule.get("risk_level", "Low"),
+                "karmic_theme": rule.get("karmic_theme", "Unspecified")
             })
 
     severity = {}
+
     for rin, items in rin_report.items():
         total = sum(score_map.get(item["risk"], 1) for item in items)
         severity[rin] = total
@@ -95,28 +108,44 @@ def evaluate_debt_cycle(house_map, planetary_db):
         "rin_details": rin_report,
         "rin_severity_score": severity
     }
-PLANET_MATURITY_AGE = {
-    "Sun": 22,
-    "Moon": 24,
-    "Mars": 28,
-    "Mercury": 32,
-    "Jupiter": 16,
-    "Venus": 25,
-    "Saturn": 36,
-    "Rahu": 42,
-    "Ketu": 48
-}
 
-def evaluate_planet_activation(current_age, house_map):
 
-    activated = []
+# ==========================================================
+# 🔥 FULL PLANET ACTIVATION (DB DRIVEN)
+# ==========================================================
 
-    for planet, age in PLANET_MATURITY_AGE.items():
-        if current_age >= age and planet in house_map:
-            activated.append({
-                "planet": planet,
-                "house": house_map[planet],
-                "activation_age": age
-            })
+def evaluate_planet_activation(house_map, planetary_db):
 
-    return activated
+    activation_result = {}
+
+    for planet, data in house_map.items():
+
+        house = data.get("house")
+
+        rule = planetary_db.get(planet, {}).get(house, {})
+
+        positive = rule.get("positive_effects", [])
+        negative = rule.get("negative_effects", [])
+        remedy = rule.get("remedy")
+        core_nature = rule.get("core_nature", "General karmic influence")
+        karmic_theme = rule.get("karmic_theme", "Life lesson activation")
+
+        # Risk Calculation
+        if len(negative) >= 3:
+            risk = "High"
+        elif len(negative) >= 1:
+            risk = "Medium"
+        else:
+            risk = "Low"
+
+        activation_result[planet] = {
+            "house": house,
+            "core_nature": core_nature,
+            "karmic_theme": karmic_theme,
+            "positive_effects": positive,
+            "negative_effects": negative,
+            "risk_level": risk,
+            "suggested_remedy": remedy
+        }
+
+    return dict(sorted(activation_result.items()))

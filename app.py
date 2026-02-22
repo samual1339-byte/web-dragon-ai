@@ -14,6 +14,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 # SAFE IMPORT WRAPPER
 # =========================
 try:
+    from services.kundali_engine.lalkitab_autonomous.lalkitab_master import LalKitabMaster
     from services.user_logger.user_logger import log_user_action
     from services.learning_engine.learning_engine import learn_from_user
     from services.kundali_engine.kundali_engine import generate_kundali, matchmaking_kundali
@@ -21,17 +22,33 @@ try:
     from services.course_data import get_courses_data
     from services.marketing_data import get_marketing_data
     from services.serp_worker import update_serp_data
+
 except Exception as e:
     print("IMPORT ERROR:", e)
 
-    def log_user_action(*args, **kwargs): pass
-    def learn_from_user(*args, **kwargs): pass
-    def generate_kundali(*args, **kwargs): return {}
-    def matchmaking_kundali(*args, **kwargs): return {}
-    def get_astrology_data(): return {}
-    def get_courses_data(): return {}
-    def get_marketing_data(): return {}
-    def update_serp_data(): pass
+    def log_user_action(*args, **kwargs):
+        pass
+
+    def learn_from_user(*args, **kwargs):
+        pass
+
+    def generate_kundali(*args, **kwargs):
+        return {}
+
+    def matchmaking_kundali(*args, **kwargs):
+        return {}
+
+    def get_astrology_data():
+        return {}
+
+    def get_courses_data():
+        return {}
+
+    def get_marketing_data():
+        return {}
+
+    def update_serp_data():
+        pass
 
 
 # =========================
@@ -41,9 +58,10 @@ def start_serp_worker():
     try:
         t = threading.Thread(target=update_serp_data, daemon=True)
         t.start()
-        print("SERP Worker Started")
-    except Exception as e:
-        print("Worker Error:", e)
+        print("SERP Worker Started Successfully")
+    except Exception:
+        print("Worker Error:")
+        traceback.print_exc()
 
 
 if not app.debug:
@@ -62,7 +80,9 @@ def empty_kundali():
         "risk_score": None,
         "risk_level": None,
         "remedies": [],
-        "interpretation": None
+        "interpretation": None,
+        "birth_analysis": {},
+        "current_analysis": {}
     }
 
 
@@ -78,8 +98,12 @@ def index():
 @app.route("/astrology")
 def astrology():
     user_ip = request.remote_addr or "unknown"
-    log_user_action(user_ip, "astrology")
-    learn_from_user(user_ip, "interest", "astrology")
+
+    try:
+        log_user_action(user_ip, "astrology")
+        learn_from_user(user_ip, "interest", "astrology")
+    except Exception:
+        traceback.print_exc()
 
     data = get_astrology_data() or {}
     return render_template("astrology.html", data=data)
@@ -89,8 +113,12 @@ def astrology():
 def kundali_route():
 
     user_ip = request.remote_addr or "unknown"
-    log_user_action(user_ip, "kundali")
-    learn_from_user(user_ip, "sub_interest", "kundali")
+
+    try:
+        log_user_action(user_ip, "kundali")
+        learn_from_user(user_ip, "sub_interest", "kundali")
+    except Exception:
+        traceback.print_exc()
 
     if request.method == "POST":
 
@@ -118,7 +146,7 @@ def kundali_route():
 
         dummy_serp = [{
             "title": "Astrological Insight",
-            "snippet": f"{name}, your planetary alignment suggests karmic activation and growth cycles."
+            "snippet": f"{name}, your planetary alignment suggests karmic activation, destiny cycles and transformative growth."
         }]
 
         return render_template(
@@ -138,13 +166,14 @@ def kundali_route():
 def matchmaking():
 
     user_ip = request.remote_addr or "unknown"
-    log_user_action(user_ip, "matchmaking")
-    learn_from_user(user_ip, "sub_interest", "matchmaking")
 
     try:
+        log_user_action(user_ip, "matchmaking")
+        learn_from_user(user_ip, "sub_interest", "matchmaking")
         data = matchmaking_kundali() or {}
-    except Exception as e:
-        print("MATCHMAKING ERROR:", e)
+    except Exception:
+        print("MATCHMAKING ERROR:")
+        traceback.print_exc()
         data = {}
 
     return render_template("matchmaking_result.html", data=data)
@@ -154,8 +183,12 @@ def matchmaking():
 def courses():
 
     user_ip = request.remote_addr or "unknown"
-    log_user_action(user_ip, "courses")
-    learn_from_user(user_ip, "interest", "courses")
+
+    try:
+        log_user_action(user_ip, "courses")
+        learn_from_user(user_ip, "interest", "courses")
+    except Exception:
+        traceback.print_exc()
 
     data = get_courses_data() or {}
     return render_template("courses.html", data=data)
@@ -165,8 +198,12 @@ def courses():
 def marketing():
 
     user_ip = request.remote_addr or "unknown"
-    log_user_action(user_ip, "marketing")
-    learn_from_user(user_ip, "interest", "marketing")
+
+    try:
+        log_user_action(user_ip, "marketing")
+        learn_from_user(user_ip, "interest", "marketing")
+    except Exception:
+        traceback.print_exc()
 
     data = get_marketing_data() or {}
     return render_template("marketing.html", data=data)
