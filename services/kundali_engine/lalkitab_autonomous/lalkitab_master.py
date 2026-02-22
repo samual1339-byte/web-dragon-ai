@@ -1,20 +1,20 @@
 import copy
 import datetime
 
-from .1_astronomy_bridge import get_astronomy_data
-from .2_house_mapper import map_planets_to_houses
-from .3_karmic_engine import (
+from .astronomy_bridge import get_astronomy_data
+from .house_mapper import map_planets_to_houses
+from .karmic_engine import (
     evaluate_karmic_structure,
     detect_house_exchange,
     evaluate_debt_cycle,
     evaluate_planet_activation
 )
-from .4_dosha_engine import (
+from .dosha_engine import (
     evaluate_dosha,
     evaluate_pitru_dosha_lalkitab
 )
-from .5_remedy_engine import generate_remedies
-from .7_risk_engine import calculate_risk
+from .remedy_engine import generate_remedies
+from .risk_engine import calculate_risk
 
 from ..database.planetary_rule_db import PLANETARY_RULES_DB
 
