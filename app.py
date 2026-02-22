@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
-import threading
 import os
 import traceback
+import threading
 
 # =========================
 # APP INIT
@@ -11,44 +11,19 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
 # =========================
-# SAFE IMPORT WRAPPER
+# IMPORT CORE ENGINE
 # =========================
 try:
     from services.kundali_engine.lalkitab_autonomous.lalkitab_master import LalKitabMaster
     from services.user_logger.user_logger import log_user_action
     from services.learning_engine.learning_engine import learn_from_user
-    from services.kundali_engine.kundali_engine import generate_kundali, matchmaking_kundali
     from services.astrology_data import get_astrology_data
     from services.course_data import get_courses_data
     from services.marketing_data import get_marketing_data
     from services.serp_worker import update_serp_data
-
 except Exception as e:
-    print("IMPORT ERROR:", e)
-
-    def log_user_action(*args, **kwargs):
-        pass
-
-    def learn_from_user(*args, **kwargs):
-        pass
-
-    def generate_kundali(*args, **kwargs):
-        return {}
-
-    def matchmaking_kundali(*args, **kwargs):
-        return {}
-
-    def get_astrology_data():
-        return {}
-
-    def get_courses_data():
-        return {}
-
-    def get_marketing_data():
-        return {}
-
-    def update_serp_data():
-        pass
+    print("CRITICAL IMPORT ERROR:", e)
+    raise
 
 
 # =========================
@@ -56,34 +31,15 @@ except Exception as e:
 # =========================
 def start_serp_worker():
     try:
-        t = threading.Thread(target=update_serp_data, daemon=True)
-        t.start()
-        print("SERP Worker Started Successfully")
+        thread = threading.Thread(target=update_serp_data, daemon=True)
+        thread.start()
+        print("SERP Worker Running")
     except Exception:
-        print("Worker Error:")
         traceback.print_exc()
 
 
 if not app.debug:
     start_serp_worker()
-
-
-# =========================
-# SAFE KUNDALI DEFAULT STRUCTURE
-# =========================
-def empty_kundali():
-    return {
-        "planets": {},
-        "lagna": None,
-        "planetary_insight": {},
-        "doshas": [],
-        "risk_score": None,
-        "risk_level": None,
-        "remedies": [],
-        "interpretation": None,
-        "birth_analysis": {},
-        "current_analysis": {}
-    }
 
 
 # =========================
@@ -97,30 +53,27 @@ def index():
 
 @app.route("/astrology")
 def astrology():
+
     user_ip = request.remote_addr or "unknown"
+    log_user_action(user_ip, "astrology")
+    learn_from_user(user_ip, "interest", "astrology")
 
-    try:
-        log_user_action(user_ip, "astrology")
-        learn_from_user(user_ip, "interest", "astrology")
-    except Exception:
-        traceback.print_exc()
-
-    data = get_astrology_data() or {}
+    data = get_astrology_data()
     return render_template("astrology.html", data=data)
 
+
+# ============================================
+# KUNDALI — PURE LAL KITAB BASED INTERPRETATION
+# ============================================
 
 @app.route("/astrology/kundali", methods=["GET", "POST"])
 def kundali_route():
 
-    user_ip = request.remote_addr or "unknown"
+    if request.method == "POST":
 
-    try:
+        user_ip = request.remote_addr or "unknown"
         log_user_action(user_ip, "kundali")
         learn_from_user(user_ip, "sub_interest", "kundali")
-    except Exception:
-        traceback.print_exc()
-
-    if request.method == "POST":
 
         name = request.form.get("name")
         dob = request.form.get("dob")
@@ -128,69 +81,62 @@ def kundali_route():
         place = request.form.get("pob")
 
         try:
-            result = generate_kundali(
+            # =====================================
+            # DIRECT ENGINE INITIALIZATION
+            # =====================================
+            engine = LalKitabMaster(
                 name=name,
                 dob=dob,
                 tob=tob,
                 place=place
             )
 
+            # =====================================
+            # STRICT LAL KITAB CALCULATION
+            # =====================================
+            result = engine.generate_lalkitab_kundali()
+
             if not isinstance(result, dict):
-                result = empty_kundali()
+                raise ValueError("Engine did not return structured dictionary")
 
         except Exception as e:
-            print("KUNDALI ERROR:")
+            print("KUNDALI ENGINE FAILURE")
             traceback.print_exc()
-            result = empty_kundali()
-            result["interpretation"] = f"Error generating kundali: {str(e)}"
 
-        dummy_serp = [{
-            "title": "Astrological Insight",
-            "snippet": f"{name}, your planetary alignment suggests karmic activation, destiny cycles and transformative growth."
-        }]
+            result = {
+                "planets": {},
+                "lagna": None,
+                "planetary_insight": {},
+                "doshas": [],
+                "risk_score": None,
+                "risk_level": None,
+                "remedies": [],
+                "interpretation": f"Lal Kitab interpretation failed: {str(e)}",
+                "birth_analysis": {},
+                "current_analysis": {}
+            }
 
         return render_template(
             "kundali_result.html",
             kundali=result,
-            serp=dummy_serp
+            serp=None
         )
 
     return render_template(
         "kundali_result.html",
-        kundali=empty_kundali(),
+        kundali=None,
         serp=None
     )
-
-
-@app.route("/astrology/matchmaking")
-def matchmaking():
-
-    user_ip = request.remote_addr or "unknown"
-
-    try:
-        log_user_action(user_ip, "matchmaking")
-        learn_from_user(user_ip, "sub_interest", "matchmaking")
-        data = matchmaking_kundali() or {}
-    except Exception:
-        print("MATCHMAKING ERROR:")
-        traceback.print_exc()
-        data = {}
-
-    return render_template("matchmaking_result.html", data=data)
 
 
 @app.route("/courses")
 def courses():
 
     user_ip = request.remote_addr or "unknown"
+    log_user_action(user_ip, "courses")
+    learn_from_user(user_ip, "interest", "courses")
 
-    try:
-        log_user_action(user_ip, "courses")
-        learn_from_user(user_ip, "interest", "courses")
-    except Exception:
-        traceback.print_exc()
-
-    data = get_courses_data() or {}
+    data = get_courses_data()
     return render_template("courses.html", data=data)
 
 
@@ -198,14 +144,10 @@ def courses():
 def marketing():
 
     user_ip = request.remote_addr or "unknown"
+    log_user_action(user_ip, "marketing")
+    learn_from_user(user_ip, "interest", "marketing")
 
-    try:
-        log_user_action(user_ip, "marketing")
-        learn_from_user(user_ip, "interest", "marketing")
-    except Exception:
-        traceback.print_exc()
-
-    data = get_marketing_data() or {}
+    data = get_marketing_data()
     return render_template("marketing.html", data=data)
 
 
