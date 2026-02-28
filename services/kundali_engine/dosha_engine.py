@@ -1,12 +1,72 @@
-def detect_doshas(planets):
+# ==========================================================
+# ⚠ DOSHA DETECTION ENGINE – FULLY STABILIZED VERSION
+# ==========================================================
+
+def detect_doshas(planets: dict, lagna: str = None):
+    """
+    Safe dosha detection engine.
+    Accepts:
+        planets (dict)
+        lagna (optional)
+
+    Returns structured dosha report.
+    Never throws KeyError.
+    """
+
+    if not isinstance(planets, dict):
+        raise TypeError("planets must be dictionary")
+
     doshas = []
 
-    mars_house = planets["Mars"]["house"]
+    # ------------------------------------------------------
+    # Safe extraction of planetary data
+    # ------------------------------------------------------
 
-    if mars_house in [1, 4, 7, 8, 12]:
+    mars = planets.get("Mars", {})
+    rahu = planets.get("Rahu", {})
+    ketu = planets.get("Ketu", {})
+
+    mars_house = mars.get("house")
+    rahu_house = rahu.get("house")
+    ketu_house = ketu.get("house")
+
+    # ======================================================
+    # 🔥 Mangal Dosha
+    # Mars in 1,4,7,8,12
+    # ======================================================
+
+    if isinstance(mars_house, int) and mars_house in [1, 4, 7, 8, 12]:
         doshas.append("Mangal Dosha")
 
-    if planets["Rahu"]["house"] == planets["Ketu"]["house"]:
-        doshas.append("Kaal Sarp Dosha")
+    # ======================================================
+    # 🔥 Kaal Sarp Dosha (Simplified Logic)
+    # Rahu & Ketu same house (symbolic simplified check)
+    # ======================================================
 
-    return doshas
+    if (
+        isinstance(rahu_house, int)
+        and isinstance(ketu_house, int)
+        and rahu_house == ketu_house
+    ):
+        doshas.append("Kaal Sarp Dosha (Simplified)")
+
+    # ======================================================
+    # 🔥 Optional Lagna Based Rule
+    # ======================================================
+
+    if lagna:
+        if lagna == "Scorpio" and isinstance(mars_house, int) and mars_house == 1:
+            doshas.append("Strong Mangal Influence (Lagna Based)")
+
+    # ======================================================
+    # SAFE DEFAULT
+    # ======================================================
+
+    if not doshas:
+        doshas.append("No Major Dosha Detected")
+
+    return {
+        "lagna": lagna,
+        "total_doshas": len(doshas),
+        "doshas": doshas
+    }

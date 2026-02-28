@@ -1,7 +1,13 @@
-import hashlib
-from datetime import datetime
+# ==========================================================
+# 🔭 ASTRONOMY CALCULATOR – STABLE CORE (DEPLOYMENT SAFE)
+# ==========================================================
 
-PLANETS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
+import math
+
+
+# ----------------------------------------------------------
+# Zodiac Signs
+# ----------------------------------------------------------
 
 RASHIS = [
     "Aries", "Taurus", "Gemini", "Cancer",
@@ -10,51 +16,84 @@ RASHIS = [
 ]
 
 
-def _generate_stable_seed(name, dob, tob, place):
+# ----------------------------------------------------------
+# Internal Degree → Rashi Converter
+# ----------------------------------------------------------
+
+def _degree_to_rashi(degree):
+    index = int(degree // 30) % 12
+    return RASHIS[index]
+
+
+# ----------------------------------------------------------
+# Internal Degree → House Calculator (Simplified)
+# ----------------------------------------------------------
+
+def _degree_to_house(degree):
+    return (int(degree // 30) % 12) + 1
+
+
+# ==========================================================
+# 🔥 MAIN PLANETARY POSITION CALCULATOR
+# ==========================================================
+
+def calculate_planetary_positions(birth_data):
     """
-    Create deterministic seed from birth data.
-    Same input → same hash → same planetary result.
+    Deterministic mock astronomical calculator.
+
+    - No external dependencies
+    - No timezone dependency
+    - Stable for cloud deployment
+    - Returns structured planet dictionary
     """
 
-    raw_string = f"{name}-{dob}-{tob}-{place}"
-    hash_object = hashlib.sha256(raw_string.encode())
-    hex_digest = hash_object.hexdigest()
+    if not isinstance(birth_data, dict):
+        raise TypeError("birth_data must be dictionary")
 
-    return int(hex_digest[:16], 16)
+    required_fields = ["date", "time", "place"]
 
+    for field in required_fields:
+        if field not in birth_data or not birth_data.get(field):
+            raise ValueError(f"Missing required field: {field}")
 
-def _deterministic_number(seed, modifier, min_val, max_val):
-    """
-    Generate stable pseudo-random number within range.
-    """
+    # Stable base seed using birth date + time
+    seed = sum(ord(c) for c in str(birth_data.get("date"))) + \
+           sum(ord(c) for c in str(birth_data.get("time")))
 
-    value = (seed + modifier) % (max_val - min_val + 1)
-    return min_val + value
+    base_positions = {
+        "Sun": 120.5,
+        "Moon": 210.2,
+        "Mars": 15.7,
+        "Mercury": 98.4,
+        "Jupiter": 300.0,
+        "Venus": 75.1,
+        "Saturn": 250.6,
+        "Rahu": 45.0,
+        "Ketu": 225.0,
+    }
 
+    planets = {}
 
-def calculate_planetary_positions(name, dob, tob, place):
-    """
-    Deterministic astronomical engine.
-    Same birth data always produces same result.
-    No randomness.
-    No system time.
-    Production stable.
-    """
+    for index, (planet, base_degree) in enumerate(base_positions.items()):
 
-    base_seed = _generate_stable_seed(name, dob, tob, place)
+        # Add small deterministic variation
+        degree = (base_degree + (seed % 30) + index * 3) % 360
 
-    planets_data = {}
+        rashi = _degree_to_rashi(degree)
+        house = _degree_to_house(degree)
 
-    for index, planet in enumerate(PLANETS):
-
-        degree = _deterministic_number(base_seed, index * 17, 0, 29)
-        rashi_index = _deterministic_number(base_seed, index * 31, 0, 11)
-        house = _deterministic_number(base_seed, index * 13, 1, 12)
-
-        planets_data[planet] = {
-            "rashi": RASHIS[rashi_index],
-            "degree": round(float(degree), 2),
-            "house": int(house)
+        planets[planet] = {
+            "degree": round(degree, 2),
+            "rashi": rashi,
+            "house": house
         }
 
-    return dict(sorted(planets_data.items()))
+    return planets
+
+
+# ==========================================================
+# 🔥 BACKWARD COMPATIBILITY FOR RENDER DEPLOYMENT
+# ==========================================================
+
+# If any module imports old name, it will still work
+calculate_planet_positions = calculate_planetary_positions

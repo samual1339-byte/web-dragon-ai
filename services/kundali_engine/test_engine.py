@@ -1,25 +1,11 @@
-from .kundali_engine import generate_kundali, matchmaking_kundali
+from services.kundali_engine.engine import LalKitabEngine
 
-# -------------------------
-# TEST KUNDALI GENERATION
-# -------------------------
+birth_data = {
+    "date": "1990-05-15",
+    "time": "14:30"
+}
 
-kundali = generate_kundali(
-    name="Rahul",
-    dob="1995-08-15",
-    tob="10:30",
-    place="Delhi"
-)
+engine = LalKitabEngine(birth_data)
+result = engine.generate_kundali()
 
-print("=== KUNDALI RESULT ===")
-print(kundali)
-
-
-# -------------------------
-# TEST MATCHMAKING
-# -------------------------
-
-match = matchmaking_kundali()
-
-print("\n=== MATCHMAKING RESULT ===")
-print(match)
+print(result)

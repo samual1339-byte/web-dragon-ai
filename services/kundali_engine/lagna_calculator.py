@@ -1,4 +1,6 @@
-from datetime import datetime
+# ==========================================================
+# 🌅 LAGNA CALCULATOR – FULLY STABILIZED VERSION
+# ==========================================================
 
 RASHIS = [
     "Aries", "Taurus", "Gemini", "Cancer",
@@ -7,14 +9,17 @@ RASHIS = [
 ]
 
 
-def _normalize_time(tob):
+# ==========================================================
+# 🔧 INTERNAL TIME NORMALIZER
+# ==========================================================
+
+def _normalize_time(tob: str):
     """
-    Ensures time is always HH:MM format.
-    Prevents fluctuation due to seconds or malformed input.
+    Ensures time is HH:MM format.
     """
 
     if not tob:
-        raise ValueError("Time of birth (tob) is required.")
+        raise ValueError("Time of birth is required.")
 
     parts = tob.strip().split(":")
 
@@ -24,27 +29,35 @@ def _normalize_time(tob):
     hour = int(parts[0])
     minute = int(parts[1])
 
-    if hour < 0 or hour > 23:
-        raise ValueError("Hour must be between 0 and 23.")
+    if not (0 <= hour <= 23):
+        raise ValueError("Hour must be between 0 and 23")
 
-    if minute < 0 or minute > 59:
-        raise ValueError("Minute must be between 0 and 59.")
+    if not (0 <= minute <= 59):
+        raise ValueError("Minute must be between 0 and 59")
 
     return hour, minute
 
 
+# ==========================================================
+# 🔥 MAIN LAGNA FUNCTION (MATCHES ENGINE CALL)
+# ==========================================================
+
 def calculate_lagna(name, dob, tob, place):
     """
-    Deterministic lagna calculation.
-    Stable across servers.
-    No system time.
-    No timezone dependency.
+    Deterministic Lagna Calculation.
+    Accepts:
+        name
+        dob
+        tob
+        place
+
+    Returns zodiac sign string.
     """
 
+    # Only time is used for deterministic simplified logic
     hour, minute = _normalize_time(tob)
 
-    # Stable Lagna Logic:
-    # Using hour block only (12 zodiac division of 24h)
+    # 24 hours divided into 12 rashis
     lagna_index = hour % 12
 
     return RASHIS[lagna_index]

@@ -1,8 +1,11 @@
-from ..user_logger.user_logger import log_user_action
+# ==========================================================
+# 🔮 KUNDALI ENGINE – CORE MASTER ENGINE (STABILIZED)
+# ==========================================================
 
-# ======================================
-# IMPORTS (FROM YOUR MODULE FILES)
-# ======================================
+from datetime import datetime
+import traceback
+
+from ..user_logger.user_logger import log_user_action
 
 # SAME FOLDER IMPORTS
 from .astronomy_calculator import calculate_planetary_positions
@@ -17,132 +20,127 @@ from ..ai_engine.ai_interpreter import enhance_with_ai
 from ..transit_engine.live_transit import get_live_transit
 
 
-# ======================================
-# MAIN KUNDALI GENERATOR
-# ======================================
+# ==========================================================
+# 🔥 MAIN ENGINE CLASS
+# ==========================================================
 
-def generate_kundali(name, dob, tob, place):
+class LalKitabEngine:
 
-    # 1️⃣ Planetary Positions
-    planets = calculate_planetary_positions(name, dob, tob, place)
+    def __init__(self, birth_data: dict):
 
-    # 2️⃣ Add Strength Calculation
-    planets = calculate_strength(planets)
+        if not isinstance(birth_data, dict):
+            raise TypeError("birth_data must be a dictionary")
 
-    # 3️⃣ Lagna
-    lagna = calculate_lagna(name, dob, tob, place)
+        required_fields = ["date", "time", "place"]
 
-    # 4️⃣ Yogas & Doshas
-    yogas = detect_yogas(planets)
-    doshas = detect_doshas(planets)
+        for field in required_fields:
+            if field not in birth_data:
+                raise ValueError(f"Missing required birth field: {field}")
 
-    # 5️⃣ Interpretation
-    interpretation = generate_interpretation(name, lagna, planets, yogas, doshas)
+        self.birth_data = birth_data
 
-    # 6️⃣ AI Enhancement
-    interpretation = enhance_with_ai(interpretation)
+    # ======================================================
+    # 🔥 MASTER GENERATION METHOD
+    # ======================================================
 
-    # 7️⃣ Live Transit
-    transit = get_live_transit()
+    def generate_kundali(self):
 
-    # 8️⃣ Final Result Structure
-    result = {
-        "planets": planets,
-        "lagna": lagna,
-        "yogas": yogas,
-        "doshas": doshas,
-        "interpretation": interpretation,
-        "live_transit": transit,
+        try:
 
-        # Keep old keys (so frontend doesn’t break)
-        "vedic": [
-            "Sun represents soul and authority",
-            "Moon represents mind and emotions"
-        ],
-        "lal_kitab": [
-            "Offer water to Sun on Sunday",
-            "Feed cow on Monday"
-        ]
-    }
+            # --------------------------------------------
+            # 1️⃣ Calculate Planetary Positions
+            # --------------------------------------------
+            planets = calculate_planetary_positions(self.birth_data)
 
-    # ✅ LOGGER ADDED HERE
-    log_user_action(
-        ip="system",
-        page="generate_kundali",
-        extra_data={
-            "name": name,
-            "dob": dob,
-            "tob": tob,
-            "place": place,
-            "lagna": lagna,
-            "yogas": yogas,
-            "doshas": doshas
-        }
-    )
+            if not isinstance(planets, dict):
+                raise ValueError("calculate_planetary_positions must return dict")
 
-    return result
+            # --------------------------------------------
+            # 2️⃣ Calculate Lagna
+            # --------------------------------------------
+            lagna = calculate_lagna(
+                self.birth_data.get("name"),
+                self.birth_data.get("date"),
+                self.birth_data.get("time"),
+                self.birth_data.get("place")
+            )
 
+            # --------------------------------------------
+            # 3️⃣ Calculate Planetary Strength
+            # --------------------------------------------
+            strengths = calculate_strength(planets)
 
-# ======================================
-# MATCHMAKING ENGINE (WITH LOGGING ADDED)
-# ======================================
+            # --------------------------------------------
+            # 4️⃣ Detect Yogas
+            # --------------------------------------------
+            yogas = detect_yogas(planets, lagna)
 
-def matchmaking_kundali():
+            # --------------------------------------------
+            # 5️⃣ Detect Doshas
+            # --------------------------------------------
+            doshas = detect_doshas(planets, lagna)
 
-    boy_nakshatra = 5
-    girl_nakshatra = 12
+            # --------------------------------------------
+            # 6️⃣ Live Transit Data (Safe Wrapper)
+            # --------------------------------------------
+            try:
+                transit_data = get_live_transit()
+                if not isinstance(transit_data, dict):
+                    transit_data = {}
+            except Exception:
+                transit_data = {}
 
-    varna = 1 if boy_nakshatra % 4 >= girl_nakshatra % 4 else 0
-    vashya = 2 if boy_nakshatra % 2 == girl_nakshatra % 2 else 1
+            # --------------------------------------------
+            # 7️⃣ Generate Interpretation
+            # --------------------------------------------
+            interpretation = generate_interpretation(
+                planets=planets,
+                strengths=strengths,
+                yogas=yogas,
+                doshas=doshas,
+                lagna=lagna,
+                transit=transit_data
+            )
 
-    tara_distance = abs(boy_nakshatra - girl_nakshatra)
-    tara = 3 if tara_distance % 9 in [0, 3, 5, 7] else 1
+            # --------------------------------------------
+            # 8️⃣ AI Enhancement Layer (Safe)
+            # --------------------------------------------
+            try:
+                interpretation = enhance_with_ai(interpretation)
+            except Exception:
+                pass  # Never break engine due to AI layer
 
-    yoni = 4 if (boy_nakshatra - girl_nakshatra) % 2 == 0 else 2
+            # --------------------------------------------
+            # 9️⃣ Log User Action
+            # --------------------------------------------
+            try:
+                log_user_action(
+                    user=self.birth_data.get("name", "Unknown"),
+                    action="Generated Kundali"
+                )
+            except Exception:
+                pass  # Logging should never crash engine
 
-    graha_maitri = 5
+            # --------------------------------------------
+            # 🔟 FINAL STRUCTURED RETURN
+            # --------------------------------------------
+            return {
+                "birth_data": self.birth_data,
+                "planets": planets,
+                "lagna": lagna,
+                "planetary_strength": strengths,
+                "yogas": yogas,
+                "doshas": doshas,
+                "transit": transit_data,
+                "interpretation": interpretation,
+                "generated_at": datetime.utcnow().isoformat()
+            }
 
-    gana = 6 if (boy_nakshatra - 1) % 3 == (girl_nakshatra - 1) % 3 else 3
+        except Exception as e:
+            traceback.print_exc()
 
-    rashi_diff = abs((boy_nakshatra % 12) - (girl_nakshatra % 12))
-    bhakoot = 0 if rashi_diff in [6, 8] else 7
-
-    nadi = 0 if (boy_nakshatra - 1) % 3 == (girl_nakshatra - 1) % 3 else 8
-
-    total_score = (
-        varna +
-        vashya +
-        tara +
-        yoni +
-        graha_maitri +
-        gana +
-        bhakoot +
-        nadi
-    )
-
-    if total_score >= 28:
-        verdict = "Excellent Match"
-    elif total_score >= 18:
-        verdict = "Average Compatibility"
-    else:
-        verdict = "Low Compatibility"
-
-    result = {
-        "guna_milan": f"{total_score}/36",
-        "score": total_score,
-        "verdict": verdict
-    }
-
-    # ✅ LOGGER ADDED HERE
-    log_user_action(
-        ip="system",
-        page="guna_milan",
-        extra_data={
-            "boy_nakshatra": boy_nakshatra,
-            "girl_nakshatra": girl_nakshatra,
-            "score": total_score,
-            "verdict": verdict
-        }
-    )
-
-    return result
+            return {
+                "birth_data": self.birth_data,
+                "error": str(e),
+                "generated_at": datetime.utcnow().isoformat()
+            }

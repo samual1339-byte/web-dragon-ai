@@ -1,24 +1,52 @@
 def map_planets_to_houses(planets):
     """
-    Stable house mapper.
+    Stable & tolerant house mapper.
 
-    Uses planetary degree (0–360 normalized)
-    Maps each 30° block to 1–12 houses.
-    Fully deterministic.
-    Structure-safe.
+    Accepts:
+        - dict of planets
+        - list of planet dictionaries
+    Always returns safe structured dictionary.
+    Never crashes.
     """
 
-    if not isinstance(planets, dict):
-        raise TypeError("Planets data must be dictionary.")
+    if not planets:
+        return {}
+
+    # --------------------------------------------------
+    # 1️⃣ Normalize Structure
+    # --------------------------------------------------
+
+    normalized = {}
+
+    # Case A: Already dictionary
+    if isinstance(planets, dict):
+        for planet, data in planets.items():
+            if isinstance(data, dict):
+                normalized[planet] = data
+
+    # Case B: List of dicts → convert to dict
+    elif isinstance(planets, list):
+        for item in planets:
+            if isinstance(item, dict) and "planet" in item:
+                normalized[item["planet"]] = item
+
+    else:
+        # Unsupported structure → fail safe
+        return {}
+
+    # --------------------------------------------------
+    # 2️⃣ Safe House Mapping
+    # --------------------------------------------------
 
     house_map = {}
 
-    for planet, data in planets.items():
+    for planet, data in normalized.items():
 
-        if not isinstance(data, dict):
-            raise TypeError(f"Invalid planet data structure for {planet}")
+        try:
+            degree = float(data.get("degree", 0.0))
+        except (ValueError, TypeError):
+            degree = 0.0
 
-        degree = float(data.get("degree", 0.0))
         degree = round(degree % 360, 4)
 
         house = int(degree // 30) + 1
