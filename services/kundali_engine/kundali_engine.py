@@ -1,5 +1,5 @@
 # ==========================================================
-# 🔮 KUNDALI ENGINE – CORE MASTER ENGINE (STABILIZED)
+# 🔮 KUNDALI ENGINE – CORE MASTER ENGINE (EXTENDED + STABLE)
 # ==========================================================
 
 from datetime import datetime
@@ -14,6 +14,7 @@ from .lagna_calculator import calculate_lagna
 from .yoga_engine import detect_yogas
 from .dosha_engine import detect_doshas
 from .interpretation_engine import generate_interpretation
+from .kundali_matching_engine import match_kundalis
 
 # SIBLING FOLDER IMPORTS
 from ..ai_engine.ai_interpreter import enhance_with_ai
@@ -34,30 +35,39 @@ class LalKitabEngine:
         required_fields = ["date", "time", "place"]
 
         for field in required_fields:
-            if field not in birth_data:
+            if field not in birth_data or not birth_data.get(field):
                 raise ValueError(f"Missing required birth field: {field}")
 
         self.birth_data = birth_data
 
     # ======================================================
-    # 🔥 MASTER GENERATION METHOD
+    # 🔥 INTERNAL SAFE TRANSIT WRAPPER
+    # ======================================================
+
+    def _get_safe_transit(self):
+        try:
+            transit_data = get_live_transit()
+            if not isinstance(transit_data, dict):
+                return {}
+            return transit_data
+        except Exception:
+            return {}
+
+    # ======================================================
+    # 🔥 SINGLE KUNDALI GENERATION
     # ======================================================
 
     def generate_kundali(self):
 
         try:
 
-            # --------------------------------------------
             # 1️⃣ Calculate Planetary Positions
-            # --------------------------------------------
             planets = calculate_planetary_positions(self.birth_data)
 
             if not isinstance(planets, dict):
                 raise ValueError("calculate_planetary_positions must return dict")
 
-            # --------------------------------------------
             # 2️⃣ Calculate Lagna
-            # --------------------------------------------
             lagna = calculate_lagna(
                 self.birth_data.get("name"),
                 self.birth_data.get("date"),
@@ -65,34 +75,19 @@ class LalKitabEngine:
                 self.birth_data.get("place")
             )
 
-            # --------------------------------------------
             # 3️⃣ Calculate Planetary Strength
-            # --------------------------------------------
             strengths = calculate_strength(planets)
 
-            # --------------------------------------------
             # 4️⃣ Detect Yogas
-            # --------------------------------------------
             yogas = detect_yogas(planets, lagna)
 
-            # --------------------------------------------
             # 5️⃣ Detect Doshas
-            # --------------------------------------------
             doshas = detect_doshas(planets, lagna)
 
-            # --------------------------------------------
-            # 6️⃣ Live Transit Data (Safe Wrapper)
-            # --------------------------------------------
-            try:
-                transit_data = get_live_transit()
-                if not isinstance(transit_data, dict):
-                    transit_data = {}
-            except Exception:
-                transit_data = {}
+            # 6️⃣ Transit
+            transit_data = self._get_safe_transit()
 
-            # --------------------------------------------
-            # 7️⃣ Generate Interpretation
-            # --------------------------------------------
+            # 7️⃣ Interpretation
             interpretation = generate_interpretation(
                 planets=planets,
                 strengths=strengths,
@@ -102,28 +97,22 @@ class LalKitabEngine:
                 transit=transit_data
             )
 
-            # --------------------------------------------
-            # 8️⃣ AI Enhancement Layer (Safe)
-            # --------------------------------------------
+            # 8️⃣ AI Enhancement Layer
             try:
                 interpretation = enhance_with_ai(interpretation)
             except Exception:
-                pass  # Never break engine due to AI layer
+                pass
 
-            # --------------------------------------------
-            # 9️⃣ Log User Action
-            # --------------------------------------------
+            # 9️⃣ Logging Layer
             try:
                 log_user_action(
                     user=self.birth_data.get("name", "Unknown"),
                     action="Generated Kundali"
                 )
             except Exception:
-                pass  # Logging should never crash engine
+                pass
 
-            # --------------------------------------------
-            # 🔟 FINAL STRUCTURED RETURN
-            # --------------------------------------------
+            # 🔟 Final Structured Output
             return {
                 "birth_data": self.birth_data,
                 "planets": planets,
@@ -141,6 +130,77 @@ class LalKitabEngine:
 
             return {
                 "birth_data": self.birth_data,
+                "error": str(e),
+                "generated_at": datetime.utcnow().isoformat()
+            }
+
+    # ======================================================
+    # 💑 KUNDALI MATCHING ENGINE (NEW EXTENSION)
+    # ======================================================
+
+    def generate_kundali_match(self, partner_birth_data: dict):
+
+        try:
+
+            if not isinstance(partner_birth_data, dict):
+                raise TypeError("partner_birth_data must be dictionary")
+
+            # Generate primary chart
+            primary_planets = calculate_planetary_positions(self.birth_data)
+            primary_lagna = calculate_lagna(
+                self.birth_data.get("name"),
+                self.birth_data.get("date"),
+                self.birth_data.get("time"),
+                self.birth_data.get("place")
+            )
+            primary_planets = calculate_strength(primary_planets)
+
+            # Generate partner chart
+            partner_planets = calculate_planetary_positions(partner_birth_data)
+            partner_lagna = calculate_lagna(
+                partner_birth_data.get("name"),
+                partner_birth_data.get("date"),
+                partner_birth_data.get("time"),
+                partner_birth_data.get("place")
+            )
+            partner_planets = calculate_strength(partner_planets)
+
+            # Matching
+            matching_result = match_kundalis(
+                primary_planets,
+                partner_planets
+            )
+
+            # Safe Logging
+            try:
+                log_user_action(
+                    user=self.birth_data.get("name", "Unknown"),
+                    action="Generated Kundali Matching"
+                )
+            except Exception:
+                pass
+
+            return {
+                "primary": {
+                    "birth_data": self.birth_data,
+                    "lagna": primary_lagna,
+                    "planets": primary_planets
+                },
+                "partner": {
+                    "birth_data": partner_birth_data,
+                    "lagna": partner_lagna,
+                    "planets": partner_planets
+                },
+                "matching_result": matching_result,
+                "generated_at": datetime.utcnow().isoformat()
+            }
+
+        except Exception as e:
+            traceback.print_exc()
+
+            return {
+                "primary_birth_data": self.birth_data,
+                "partner_birth_data": partner_birth_data,
                 "error": str(e),
                 "generated_at": datetime.utcnow().isoformat()
             }

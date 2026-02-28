@@ -2087,5 +2087,19 @@
     "page": "kundali",
     "query": null,
     "extra_data": null
+  },
+  {
+    "time": "2026-02-28 12:04:40",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-02-28 12:04:48",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
   }
 ]
