@@ -57,82 +57,120 @@ class LalKitabEngine:
     # 🔥 SINGLE KUNDALI GENERATION
     # ======================================================
 
-    def generate_kundali(self):
+   def generate_kundali(self):
 
-        try:
+    try:
 
-            # 1️⃣ Calculate Planetary Positions
-            planets = calculate_planetary_positions(self.birth_data)
+        # 1️⃣ Calculate Planetary Positions
+        planets = calculate_planetary_positions(self.birth_data)
 
-            if not isinstance(planets, dict):
-                raise ValueError("calculate_planetary_positions must return dict")
+        if not isinstance(planets, dict):
+            raise ValueError("calculate_planetary_positions must return dict")
 
-            # 2️⃣ Calculate Lagna
-            lagna = calculate_lagna(
-                self.birth_data.get("name"),
-                self.birth_data.get("date"),
-                self.birth_data.get("time"),
-                self.birth_data.get("place")
+        # 2️⃣ Calculate Lagna
+        lagna = calculate_lagna(
+            self.birth_data.get("name"),
+            self.birth_data.get("date"),
+            self.birth_data.get("time"),
+            self.birth_data.get("place")
+        )
+
+        # 3️⃣ Calculate Planetary Strength
+        strengths = calculate_strength(planets)
+
+        # 4️⃣ Detect Yogas
+        yogas = detect_yogas(planets, lagna)
+
+        # 5️⃣ Detect Doshas
+        doshas = detect_doshas(planets, lagna)
+
+        # 6️⃣ Transit (Safe)
+        transit_data = self._get_safe_transit()
+
+        # 7️⃣ Generate Interpretation
+        interpretation = generate_interpretation(
+            planets=planets,
+            strengths=strengths,
+            yogas=yogas,
+            doshas=doshas,
+            lagna=lagna,
+            transit=transit_data
+        )
+
+        if not interpretation or not interpretation.strip():
+            interpretation = (
+                f"The native with {lagna} ascendant shows a balanced planetary "
+                f"distribution. Further detailed planetary interpretation will "
+                f"be enhanced in future updates."
             )
 
-            # 3️⃣ Calculate Planetary Strength
-            strengths = calculate_strength(planets)
+        # 8️⃣ Lal Kitab Remedies Logic (Dynamic Rule Layer)
+        remedies = []
 
-            # 4️⃣ Detect Yogas
-            yogas = detect_yogas(planets, lagna)
+        if "Mangal Dosha" in doshas:
+            remedies.extend([
+                "Offer red lentils (masoor dal) on Tuesday.",
+                "Donate red cloth or copper on Tuesday.",
+                "Control aggression and impulsive speech."
+            ])
 
-            # 5️⃣ Detect Doshas
-            doshas = detect_doshas(planets, lagna)
+        if "Kaal Sarp Dosha" in doshas:
+            remedies.extend([
+                "Offer milk to Lord Shiva on Monday.",
+                "Perform Rahu-Ketu Shanti remedies.",
+                "Feed stray dogs regularly."
+            ])
 
-            # 6️⃣ Transit
-            transit_data = self._get_safe_transit()
-
-            # 7️⃣ Interpretation
-            interpretation = generate_interpretation(
-                planets=planets,
-                strengths=strengths,
-                yogas=yogas,
-                doshas=doshas,
-                lagna=lagna,
-                transit=transit_data
-            )
-
-            # 8️⃣ AI Enhancement Layer
-            try:
-                interpretation = enhance_with_ai(interpretation)
-            except Exception:
-                pass
-
-            # 9️⃣ Logging Layer
-            try:
-                log_user_action(
-                    user=self.birth_data.get("name", "Unknown"),
-                    action="Generated Kundali"
+        for planet, data in strengths.items():
+            if data.get("strength") == "Average":
+                remedies.append(
+                    f"Strengthen {planet} through charity and disciplined lifestyle."
                 )
-            except Exception:
-                pass
 
-            # 🔟 Final Structured Output
-            return {
-                "birth_data": self.birth_data,
-                "planets": planets,
+        if not remedies:
+            remedies.append("No specific remedies suggested. Planetary alignment appears stable.")
+
+        # 9️⃣ AI Enhancement Layer
+        try:
+            interpretation = enhance_with_ai(interpretation)
+        except Exception:
+            pass
+
+        # 🔟 Safe Logging
+        try:
+            log_user_action(
+                user=self.birth_data.get("name", "Unknown"),
+                action="Generated Kundali"
+            )
+        except Exception:
+            pass
+
+        # 🔟 FINAL STRUCTURED RETURN (UI COMPATIBLE)
+        return {
+            "birth_data": self.birth_data,
+            "planets": planets,
+            "lagna": lagna,
+            "planetary_strength": strengths,
+            "yogas": yogas,
+            "dosha_analysis": {
                 "lagna": lagna,
-                "planetary_strength": strengths,
-                "yogas": yogas,
-                "doshas": doshas,
-                "transit": transit_data,
-                "interpretation": interpretation,
-                "generated_at": datetime.utcnow().isoformat()
-            }
+                "total_doshas": len(doshas),
+                "doshas": doshas
+            },
+            "lal_kitab_remedies": remedies,
+            "transit": transit_data,
+            "detailed_planetary_interpretation": interpretation,
+            "generated_at": datetime.utcnow().isoformat()
+        }
 
-        except Exception as e:
-            traceback.print_exc()
+    except Exception as e:
+        traceback.print_exc()
 
-            return {
-                "birth_data": self.birth_data,
-                "error": str(e),
-                "generated_at": datetime.utcnow().isoformat()
-            }
+        return {
+            "birth_data": self.birth_data,
+            "error": str(e),
+            "generated_at": datetime.utcnow().isoformat()
+        }
 
     # ======================================================
     # 💑 KUNDALI MATCHING ENGINE (NEW EXTENSION)
