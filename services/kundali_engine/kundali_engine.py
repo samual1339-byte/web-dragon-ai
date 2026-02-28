@@ -57,17 +57,14 @@ class LalKitabEngine:
     # 🔥 SINGLE KUNDALI GENERATION
     # ======================================================
 
-   def generate_kundali(self):
-
+  def generate_kundali(self):
     try:
 
-        # 1️⃣ Calculate Planetary Positions
         planets = calculate_planetary_positions(self.birth_data)
 
         if not isinstance(planets, dict):
             raise ValueError("calculate_planetary_positions must return dict")
 
-        # 2️⃣ Calculate Lagna
         lagna = calculate_lagna(
             self.birth_data.get("name"),
             self.birth_data.get("date"),
@@ -75,19 +72,14 @@ class LalKitabEngine:
             self.birth_data.get("place")
         )
 
-        # 3️⃣ Calculate Planetary Strength
         strengths = calculate_strength(planets)
 
-        # 4️⃣ Detect Yogas
         yogas = detect_yogas(planets, lagna)
 
-        # 5️⃣ Detect Doshas
         doshas = detect_doshas(planets, lagna)
 
-        # 6️⃣ Transit (Safe)
         transit_data = self._get_safe_transit()
 
-        # 7️⃣ Generate Interpretation
         interpretation = generate_interpretation(
             planets=planets,
             strengths=strengths,
@@ -99,44 +91,42 @@ class LalKitabEngine:
 
         if not interpretation or not interpretation.strip():
             interpretation = (
-                f"The native with {lagna} ascendant shows a balanced planetary "
-                f"distribution. Further detailed planetary interpretation will "
-                f"be enhanced in future updates."
+                f"The native with {lagna} ascendant shows a balanced "
+                f"planetary distribution."
             )
 
-        # 8️⃣ Lal Kitab Remedies Logic (Dynamic Rule Layer)
         remedies = []
 
         if "Mangal Dosha" in doshas:
             remedies.extend([
-                "Offer red lentils (masoor dal) on Tuesday.",
-                "Donate red cloth or copper on Tuesday.",
-                "Control aggression and impulsive speech."
+                "Offer red lentils on Tuesday.",
+                "Donate red cloth.",
+                "Control anger and aggression."
             ])
 
         if "Kaal Sarp Dosha" in doshas:
             remedies.extend([
-                "Offer milk to Lord Shiva on Monday.",
-                "Perform Rahu-Ketu Shanti remedies.",
-                "Feed stray dogs regularly."
+                "Offer milk to Shiva on Monday.",
+                "Feed stray dogs.",
+                "Perform Rahu-Ketu remedies."
             ])
 
         for planet, data in strengths.items():
             if data.get("strength") == "Average":
                 remedies.append(
-                    f"Strengthen {planet} through charity and disciplined lifestyle."
+                    f"Strengthen {planet} through discipline and charity."
                 )
 
         if not remedies:
-            remedies.append("No specific remedies suggested. Planetary alignment appears stable.")
+            remedies.append(
+                "No specific remedies suggested. Planetary alignment appears stable."
+            )
 
-        # 9️⃣ AI Enhancement Layer
         try:
             interpretation = enhance_with_ai(interpretation)
         except Exception:
             pass
 
-        # 🔟 Safe Logging
         try:
             log_user_action(
                 user=self.birth_data.get("name", "Unknown"),
@@ -145,7 +135,6 @@ class LalKitabEngine:
         except Exception:
             pass
 
-        # 🔟 FINAL STRUCTURED RETURN (UI COMPATIBLE)
         return {
             "birth_data": self.birth_data,
             "planets": planets,
@@ -165,13 +154,11 @@ class LalKitabEngine:
 
     except Exception as e:
         traceback.print_exc()
-
         return {
             "birth_data": self.birth_data,
             "error": str(e),
             "generated_at": datetime.utcnow().isoformat()
         }
-
     # ======================================================
     # 💑 KUNDALI MATCHING ENGINE (NEW EXTENSION)
     # ======================================================
