@@ -1,54 +1,56 @@
 # ==========================================================
-# 🔮 INTERPRETATION ENGINE – EXPANDED & STABILIZED VERSION
+# 🔮 INTERPRETATION ENGINE – CLEAN STABLE VERSION
 # ==========================================================
 
 from datetime import datetime
 
 
 def generate_interpretation(**kwargs):
-    """
-    Expanded interpretation engine compatible with
-    Kundali master engine structure.
-
-    Accepts flexible keyword arguments:
-        name
-        lagna
-        planets
-        strengths
-        yogas
-        doshas
-        transit
-    """
 
     name = kwargs.get("name", "User")
     lagna = kwargs.get("lagna")
-    planets = kwargs.get("planets", {})
     strengths = kwargs.get("strengths", {})
-    yogas = kwargs.get("yogas", {})
-    doshas = kwargs.get("doshas", {})
+    yogas = kwargs.get("yogas", [])
+    doshas = kwargs.get("doshas", [])
     transit = kwargs.get("transit", {})
 
-    summary_text = f"{name}, "
+    summary_parts = []
+    summary_parts.append(f"{name},")
 
-    # ------------------------------------------------------
-    # Lagna Personality Logic (Your Original Logic Expanded)
-    # ------------------------------------------------------
+    # ======================================================
+    # Lagna Personality
+    # ======================================================
 
-    if lagna:
-        summary_text += f"with {lagna} ascendant, "
+    if not lagna:
+        summary_parts.append("ascendant information is unavailable.")
+    else:
+        summary_parts.append(f"with {lagna} ascendant,")
 
-        if lagna in ["Leo", "Aries"]:
-            summary_text += "you are bold and leadership-driven. "
-        elif lagna in ["Cancer", "Pisces"]:
-            summary_text += "you are emotional and intuitive. "
+        fire_signs = ["Leo", "Aries"]
+        water_signs = ["Cancer", "Pisces"]
+        practical_signs = [
+            "Virgo",
+            "Capricorn",
+            "Taurus",
+            "Gemini",
+            "Libra",
+            "Aquarius",
+            "Sagittarius",
+            "Scorpio",
+        ]
+
+        if lagna in fire_signs:
+            summary_parts.append("you are bold and leadership-driven.")
+        elif lagna in water_signs:
+            summary_parts.append("you are emotional and intuitive.")
+        elif lagna in practical_signs:
+            summary_parts.append("you are practical and analytical.")
         else:
-            summary_text += "you are practical and analytical. "
-        else:
-            summary_text += "ascendant information is unavailable. "
+            summary_parts.append("your personality traits are unique and dynamic.")
 
-    # ------------------------------------------------------
-    # Yoga Handling (Structured Compatible)
-    # ------------------------------------------------------
+    # ======================================================
+    # Yogas
+    # ======================================================
 
     yoga_list = []
 
@@ -58,11 +60,13 @@ def generate_interpretation(**kwargs):
         yoga_list = yogas
 
     if yoga_list:
-        summary_text += f"You have powerful yogas like {', '.join(yoga_list)}. "
+        summary_parts.append(
+            f"You have powerful yogas like {', '.join(yoga_list)}."
+        )
 
-    # ------------------------------------------------------
-    # Dosha Handling
-    # ------------------------------------------------------
+    # ======================================================
+    # Doshas
+    # ======================================================
 
     dosha_list = []
 
@@ -72,11 +76,13 @@ def generate_interpretation(**kwargs):
         dosha_list = doshas
 
     if dosha_list:
-        summary_text += f"However, caution due to {', '.join(dosha_list)}. "
+        summary_parts.append(
+            f"However, caution is advised due to {', '.join(dosha_list)}."
+        )
 
-    # ------------------------------------------------------
-    # Planetary Strength Expansion
-    # ------------------------------------------------------
+    # ======================================================
+    # Planetary Strength Analysis
+    # ======================================================
 
     planetary_analysis = []
 
@@ -100,11 +106,13 @@ def generate_interpretation(**kwargs):
             planetary_analysis.append(text)
 
     if not planetary_analysis:
-        planetary_analysis.append("Detailed planetary strength data unavailable.")
+        planetary_analysis.append(
+            "Detailed planetary strength data unavailable."
+        )
 
-    # ------------------------------------------------------
-    # Transit Expansion
-    # ------------------------------------------------------
+    # ======================================================
+    # Transit Analysis
+    # ======================================================
 
     transit_analysis = []
 
@@ -132,9 +140,11 @@ def generate_interpretation(**kwargs):
     if not transit_analysis:
         transit_analysis.append("Transit data not available.")
 
-    # ------------------------------------------------------
-    # Final Structured Output
-    # ------------------------------------------------------
+    # ======================================================
+    # Final Output
+    # ======================================================
+
+    summary_text = " ".join(summary_parts)
 
     return {
         "summary": summary_text,
@@ -143,5 +153,5 @@ def generate_interpretation(**kwargs):
         "yoga_analysis": yoga_list if yoga_list else ["No major yoga detected."],
         "dosha_analysis": dosha_list if dosha_list else ["No major dosha detected."],
         "transit_analysis": transit_analysis,
-        "generated_at": datetime.utcnow().isoformat()
+        "generated_at": datetime.utcnow().isoformat(),
     }
