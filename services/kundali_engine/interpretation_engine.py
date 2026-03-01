@@ -43,8 +43,8 @@ def generate_interpretation(**kwargs):
             summary_text += "you are emotional and intuitive. "
         else:
             summary_text += "you are practical and analytical. "
-    else:
-        summary_text += "ascendant information is unavailable. "
+        else:
+            summary_text += "ascendant information is unavailable. "
 
     # ------------------------------------------------------
     # Yoga Handling (Structured Compatible)
