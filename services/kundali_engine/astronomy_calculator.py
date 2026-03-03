@@ -1,8 +1,9 @@
 # ==========================================================
-# 🔭 ASTRONOMY CALCULATOR – STABLE CORE (DEPLOYMENT SAFE)
+# 🔭 ASTRONOMY CALCULATOR – EXTENDED STRUCTURED CORE
 # ==========================================================
 
 import math
+from datetime import datetime
 
 
 # ----------------------------------------------------------
@@ -17,48 +18,66 @@ RASHIS = [
 
 
 # ----------------------------------------------------------
-# Internal Degree → Rashi Converter
+# Internal Utilities
 # ----------------------------------------------------------
 
-def _degree_to_rashi(degree):
+def _degree_to_rashi(degree: float) -> str:
     index = int(degree // 30) % 12
     return RASHIS[index]
 
 
-# ----------------------------------------------------------
-# Internal Degree → House Calculator (Simplified)
-# ----------------------------------------------------------
-
-def _degree_to_house(degree):
+def _degree_to_house(degree: float) -> int:
     return (int(degree // 30) % 12) + 1
 
 
+def _generate_seed(birth_data: dict) -> int:
+    return (
+        sum(ord(c) for c in str(birth_data.get("date"))) +
+        sum(ord(c) for c in str(birth_data.get("time"))) +
+        sum(ord(c) for c in str(birth_data.get("place")))
+    )
+
+
+def _build_house_map(by_planet: dict) -> dict:
+    house_map = {i: [] for i in range(1, 13)}
+    for planet, pdata in by_planet.items():
+        house = pdata.get("house")
+        if isinstance(house, int) and 1 <= house <= 12:
+            house_map[house].append(planet)
+    return house_map
+
+
 # ==========================================================
-# 🔥 MAIN PLANETARY POSITION CALCULATOR
+# 🔥 MAIN PLANETARY POSITION CALCULATOR (STRUCTURED)
 # ==========================================================
 
-def calculate_planetary_positions(birth_data):
+def calculate_planetary_positions(birth_data: dict) -> dict:
     """
-    Deterministic mock astronomical calculator.
+    Structured deterministic astronomical calculator.
 
-    - No external dependencies
-    - No timezone dependency
-    - Stable for cloud deployment
-    - Returns structured planet dictionary
+    Returns unified planetary schema:
+
+    {
+        "birth_timestamp": "...",
+        "by_planet": {...},
+        "by_house": {...},
+        "raw_seed": int
+    }
+
+    Safe for cloud deployment.
+    Deterministic.
+    No external dependencies.
     """
 
     if not isinstance(birth_data, dict):
         raise TypeError("birth_data must be dictionary")
 
     required_fields = ["date", "time", "place"]
-
     for field in required_fields:
-        if field not in birth_data or not birth_data.get(field):
+        if not birth_data.get(field):
             raise ValueError(f"Missing required field: {field}")
 
-    # Stable base seed using birth date + time
-    seed = sum(ord(c) for c in str(birth_data.get("date"))) + \
-           sum(ord(c) for c in str(birth_data.get("time")))
+    seed = _generate_seed(birth_data)
 
     base_positions = {
         "Sun": 120.5,
@@ -72,28 +91,34 @@ def calculate_planetary_positions(birth_data):
         "Ketu": 225.0,
     }
 
-    planets = {}
+    by_planet = {}
 
     for index, (planet, base_degree) in enumerate(base_positions.items()):
 
-        # Add small deterministic variation
         degree = (base_degree + (seed % 30) + index * 3) % 360
-
         rashi = _degree_to_rashi(degree)
         house = _degree_to_house(degree)
 
-        planets[planet] = {
+        by_planet[planet] = {
             "degree": round(degree, 2),
             "rashi": rashi,
-            "house": house
+            "house": house,
+            "retrograde": False,
+            "strength_factor": round(math.cos(math.radians(degree)), 4)
         }
 
-    return planets
+    by_house = _build_house_map(by_planet)
+
+    return {
+        "birth_timestamp": f"{birth_data.get('date')} {birth_data.get('time')}",
+        "by_planet": by_planet,
+        "by_house": by_house,
+        "raw_seed": seed
+    }
 
 
-# ==========================================================
-# 🔥 BACKWARD COMPATIBILITY FOR RENDER DEPLOYMENT
-# ==========================================================
+# ----------------------------------------------------------
+# Backward Compatibility
+# ----------------------------------------------------------
 
-# If any module imports old name, it will still work
 calculate_planet_positions = calculate_planetary_positions

@@ -1,33 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>World of Web Dragon AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Web Dragon AI | Autonomous Intelligence Hub</title>
+
+    <meta name="description" content="Web Dragon AI - Advanced Astrology Engine, Digital Courses & Intelligent Marketing Solutions">
+    <meta name="keywords" content="Astrology AI, Kundali Engine, Digital Marketing, AI Platform">
+    <meta name="author" content="Web Dragon AI">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body class="home">
 
-<header>
-  <h1>🐉 Web Dragon AI</h1>
-  <p>Your Autonomous Intelligence Hub</p>
+<!-- ================= HEADER ================= -->
+<header class="main-header">
+    <div class="container nav-container">
+        <div class="logo">
+            🐉 <span>Web Dragon AI</span>
+        </div>
+
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('astrology') }}">Astrology</a>
+            <a href="{{ url_for('courses') }}">Courses</a>
+            <a href="{{ url_for('marketing') }}">Marketing</a>
+        </nav>
+    </div>
 </header>
 
-<div class="dragon-container">
-  <img src="{{ url_for('static', filename='images/dragon.png') }}"
-       class="dragon"
-       alt="Flying Dragon">
-</div>
 
-<section class="services">
-  <h2>Our Services</h2>
+<!-- ================= FLASH MESSAGES ================= -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for message in messages %}
+        <div class="flash-message">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
-  <div class="cards">
-    <a href="{{ url_for('astrology') }}" class="card">🔮 Astrology</a>
-    <a href="{{ url_for('courses') }}" class="card">💻 Digital Courses</a>
-    <a href="{{ url_for('marketing') }}" class="card">📊 Marketing & Trading</a>
-  </div>
+
+<!-- ================= HERO SECTION ================= -->
+<section class="hero">
+    <div class="container hero-container">
+
+        <div class="hero-left">
+            <h1>Autonomous Intelligence Web Dragon</h1>
+            <p>
+                Advanced AI-driven Astrology Engine, Smart Learning Systems,
+                and Data-Powered Marketing Automation — all in one intelligent ecosystem.
+            </p>
+
+            <div class="cta-buttons">
+                <a href="{{ url_for('astrology') }}" class="btn primary">
+                    🔮 Generate Kundali
+                </a>
+
+                <a href="{{ url_for('courses') }}" class="btn secondary">
+                    💻 Explore Courses
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <img src="{{ url_for('static', filename='images/dragon.png') }}"
+                 alt="Flying Dragon"
+                 class="dragon">
+        </div>
+
+    </div>
 </section>
+
+
+<!-- ================= STATS SECTION ================= -->
+<section class="stats">
+    <div class="container stats-grid">
+
+        <div class="stat-box">
+            <h3>1000+</h3>
+            <p>Kundalis Generated</p>
+        </div>
+
+        <div class="stat-box">
+            <h3>95%</h3>
+            <p>User Satisfaction</p>
+        </div>
+
+        <div class="stat-box">
+            <h3>24/7</h3>
+            <p>AI Engine Availability</p>
+        </div>
+
+        <div class="stat-box">
+            <h3>∞</h3>
+            <p>Scalable Architecture</p>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ================= CORE SERVICES ================= -->
+<section class="services">
+    <div class="container">
+        <h2>Web Dragon Core Services</h2>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>🔮 LalKitab & Vedic Astrology AI</h3>
+                <p>
+                    Fully automated Kundali generation with planetary strength,
+                    yogas, doshas, remedies and destiny scoring model.
+                </p>
+                <a href="{{ url_for('astrology') }}" class="card-btn">Explore</a>
+            </div>
+
+            <div class="card">
+                <h3>💻 Digital Learning Hub</h3>
+                <p>
+                    Structured AI, Marketing, Trading & Technology courses
+                    designed for future entrepreneurs.
+                </p>
+                <a href="{{ url_for('courses') }}" class="card-btn">Explore</a>
+            </div>
+
+            <div class="card">
+                <h3>📊 Marketing Intelligence</h3>
+                <p>
+                    Data-driven brand growth strategies, funnel automation,
+                    AI content systems & trading insights.
+                </p>
+                <a href="{{ url_for('marketing') }}" class="card-btn">Explore</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ================= ABOUT ================= -->
+<section class="about">
+    <div class="container">
+        <h2>About Web Dragon</h2>
+
+        <p>
+            Web Dragon AI is a next-generation intelligence platform combining
+            Vedic astrology computation, artificial intelligence interpretation,
+            and digital business automation.
+        </p>
+
+        <p>
+            Built with modular architecture and scalable AI layers,
+            it is designed for long-term expansion into a full SaaS ecosystem.
+        </p>
+    </div>
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+<footer>
+    <div class="container footer-content">
+        <p>© {{ now().year if now else 2026 }} Web Dragon AI. All rights reserved.</p>
+        <p>Designed & Engineered by Web Dragon 🐉</p>
+    </div>
+</footer>
 
 </body>
 </html>

@@ -1,28 +1,189 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Matchmaking | Web Dragon AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <title>Matchmaking | Web Dragon AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            font-family: Arial, Helvetica, sans-serif;
+            color: #ffffff;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 50px 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title h1 {
+            font-size: 36px;
+            color: #ffd369;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #cccccc;
+            font-size: 16px;
+        }
+
+        .section-card {
+            background: rgba(255,255,255,0.06);
+            padding: 35px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            transition: 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+        }
+
+        .section-card h2 {
+            margin-bottom: 25px;
+            color: #00ffcc;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding-bottom: 10px;
+        }
+
+        .guidance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .guidance-item {
+            background: rgba(0,0,0,0.35);
+            padding: 20px;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .guidance-item:hover {
+            background: rgba(0,0,0,0.55);
+            transform: translateY(-4px);
+        }
+
+        .guidance-item p {
+            margin: 0;
+            font-size: 15px;
+            color: #dddddd;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 15px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 28px;
+            background: #ffd369;
+            color: #000;
+            font-weight: bold;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #ffbf00;
+        }
+
+        nav {
+            background: rgba(0,0,0,0.5);
+            padding: 15px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffd369;
+        }
+
+        nav a.active {
+            color: #ffd369;
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>💑 Matchmaking Guidance</h1>
+<nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('astrology') }}" class="active">Astrology</a>
+    <a href="{{ url_for('matchmaking') }}">Matchmaking</a>
+</nav>
 
-<h2>📜 Lal Kitab</h2>
-<ul>
-  {% for item in data.lal_kitab %}
-    <li>{{ item }}</li>
-  {% endfor %}
-</ul>
+<div class="page-container">
 
-<h2>🕉 Vedic Jyotish</h2>
-<ul>
-  {% for item in data.vedic %}
-    <li>{{ item }}</li>
-  {% endfor %}
-</ul>
+    <div class="page-title">
+        <h1>💑 Matchmaking Guidance</h1>
+        <p>Advanced compatibility insights powered by Lal Kitab & Vedic Jyotish</p>
+    </div>
 
-<a href="/astrology">⬅ Back</a>
+    <!-- ================= LAL KITAB SECTION ================= -->
+    <div class="section-card">
+        <h2>📜 Lal Kitab Compatibility Insights</h2>
+
+        {% if data and data.lal_kitab %}
+            <div class="guidance-grid">
+                {% for item in data.lal_kitab %}
+                    <div class="guidance-item">
+                        <p>{{ item }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">No Lal Kitab insights available.</p>
+        {% endif %}
+    </div>
+
+    <!-- ================= VEDIC SECTION ================= -->
+    <div class="section-card">
+        <h2>🕉 Vedic Jyotish Compatibility Analysis</h2>
+
+        {% if data and data.vedic %}
+            <div class="guidance-grid">
+                {% for item in data.vedic %}
+                    <div class="guidance-item">
+                        <p>{{ item }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">No Vedic compatibility analysis available.</p>
+        {% endif %}
+    </div>
+
+    <div style="text-align:center;">
+        <a href="{{ url_for('astrology') }}" class="back-btn">⬅ Back to Astrology</a>
+    </div>
+
+</div>
 
 </body>
 </html>

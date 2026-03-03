@@ -1,36 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Courses | Web Dragon AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses | Web Dragon AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h1 {
+            color: #ffd369;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #bbbbbb;
+            font-size: 16px;
+        }
+
+        .course-section {
+            margin-bottom: 50px;
+        }
+
+        .course-section h2 {
+            color: #00ffcc;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #222;
+            padding-bottom: 10px;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: #1c1c1c;
+            padding: 20px;
+            border-radius: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .course-card h3 {
+            color: #ffd369;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .course-card p {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            background: #1c1c1c;
+            padding: 20px;
+            border-radius: 12px;
+            color: #ff6b6b;
+            text-align: center;
+        }
+
+        .back-home {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 10px 20px;
+            background: #ffd369;
+            color: #000;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .back-home:hover {
+            background: #ffbf00;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>💻 Digital Courses</h1>
+<nav>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('astrology') }}">Astrology</a>
+    <a href="{{ url_for('courses') }}" class="active">Courses</a>
+    <a href="{{ url_for('marketing') }}">Marketing</a>
+</nav>
 
-{% if data %}
-  {% for course, items in data.items() %}
-    <h2>{{ course | replace("_", " ") | title }}</h2>
+<div class="page-container">
 
-    {% if items %}
-      <ul>
-        {% for item in items %}
-          <li>
-            <strong>{{ item.title }}</strong><br>
-            <small>{{ item.snippet }}</small>
-          </li>
+    <div class="page-title">
+        <h1>💻 Digital Courses</h1>
+        <p>AI-powered curated knowledge streams</p>
+    </div>
+
+    {% if data %}
+
+        {% for course, items in data.items() %}
+            <div class="course-section">
+
+                <h2>{{ course | replace("_", " ") | title }}</h2>
+
+                {% if items %}
+                    <div class="course-grid">
+                        {% for item in items %}
+                            <div class="course-card">
+                                <h3>{{ item.title }}</h3>
+                                <p>{{ item.snippet }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        No data available for this category yet.
+                    </div>
+                {% endif %}
+
+            </div>
         {% endfor %}
-      </ul>
+
     {% else %}
-      <p>No data yet.</p>
+        <div class="empty-state">
+            Course data is being collected autonomously…
+        </div>
     {% endif %}
 
-  {% endfor %}
-{% else %}
-  <p>Course data is being collected autonomously…</p>
-{% endif %}
+    <div style="text-align:center;">
+        <a href="{{ url_for('index') }}" class="back-home">⬅ Back to Home</a>
+    </div>
 
-<a href="/">⬅ Home</a>
+</div>
 
 </body>
 </html>

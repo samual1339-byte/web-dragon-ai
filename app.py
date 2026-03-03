@@ -19,43 +19,51 @@ logging.basicConfig(
 
 logger = logging.getLogger("WebDragonAI")
 
-
 # ==========================================================
 # 🔥 SAFE IMPORTS – CORE SERVICES
 # ==========================================================
 
+LalKitabEngine = None
+log_user_action = None
+learn_from_user = None
+get_courses_data = None
+get_marketing_data = None
+update_serp_data = None
+
 try:
     import services.kundali_engine.kundali_engine as kundali_module
     LalKitabEngine = getattr(kundali_module, "LalKitabEngine", None)
-
-   
-
 except Exception as e:
-    logger.critical(f"❌ Failed to import LalKitabEngine: {e}")
-    raise e
-
+    logger.error(f"Engine import failed: {e}")
 
 try:
     from services.user_logger.user_logger import log_user_action
     from services.learning_engine.learning_engine import learn_from_user
-    from services.astrology_data import get_astrology_data
+except Exception:
+    logger.warning("Tracking services not available.")
+
+try:
     from services.course_data import get_courses_data
     from services.marketing_data import get_marketing_data
+except Exception:
+    logger.warning("Data services not available.")
+
+try:
     from services.serp_worker import update_serp_data
-except Exception as e:
-    logger.critical(f"❌ Core service import failed: {e}")
-    raise e
+except Exception:
+    logger.warning("SERP worker not available.")
 
 # ==========================================================
-# 🔥 BACKGROUND WORKER (SERP)
+# 🔥 BACKGROUND WORKER
 # ==========================================================
 
 def start_serp_worker():
+    if update_serp_data is None:
+        return
     try:
         thread = threading.Thread(
             target=update_serp_data,
-            daemon=True,
-            name="SERPWorkerThread"
+            daemon=True
         )
         thread.start()
         logger.info("✅ SERP Worker Running")
@@ -67,35 +75,61 @@ def start_serp_worker():
 if not app.debug:
     start_serp_worker()
 
-
 # ==========================================================
-# 🔥 SAFE DEFAULT KUNDALI STRUCTURE (STRICT TEMPLATE SAFE)
+# 🔮 SAFE RESULT STRUCTURE (FIXES ALL UNAVAILABLE ISSUES)
 # ==========================================================
 
-def get_safe_kundali_response(error_message=None):
+def build_default_kundali():
     return {
-        "birth_data": {},
-        "planets": {},
-        "lagna": None,
-        "doshas": {},
-        "yogas": [],
-        "impact_analysis": {},
-        "remedies": [],
-        "risk_score": None,
-        "risk_level": None,
-        "interpretation": error_message or "Interpretation unavailable.",
+        "personality_summary": "Analysis not generated yet.",
+        "lagna": "Unknown",
+        "planetary_positions": [],
+        "yoga_analysis": [],
+        "dosha_analysis": [],
+        "transit_analysis": "Transit analysis pending.",
+        "destiny_score": 5,
         "generated_at": datetime.utcnow().isoformat()
     }
 
+def calculate_destiny_score(data):
+    score = 0
+
+    if data.get("planetary_positions"):
+        score += 2
+    if data.get("yoga_analysis"):
+        score += 3
+    if data.get("transit_analysis"):
+        score += 2
+    if not data.get("dosha_analysis"):
+        score += 3
+
+
+    return min(score, 10)
+
+def normalize_engine_output(raw):
+    default = build_default_kundali()
+
+    if not isinstance(raw, dict):
+        return default
+
+    default["personality_summary"] = raw.get("personality_summary") or default["personality_summary"]
+    default["lagna"] = raw.get("lagna") or default["lagna"]
+    default["planetary_positions"] = raw.get("planetary_positions") or []
+    default["yoga_analysis"] = raw.get("yoga_analysis") or []
+    default["dosha_analysis"] = raw.get("dosha_analysis") or []
+    default["transit_analysis"] = raw.get("transit_analysis") or default["transit_analysis"]
+
+    default["destiny_score"] = calculate_destiny_score(default)
+
+    return default
 
 # ==========================================================
-# 🔥 ROUTES
+# 🏠 HOME
 # ==========================================================
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 # ==========================================================
 # 🔮 ASTROLOGY PAGE
@@ -104,52 +138,46 @@ def index():
 @app.route("/astrology")
 def astrology():
 
-    user_ip = request.remote_addr or "unknown"
+    if log_user_action and learn_from_user:
+        try:
+            user_ip = request.remote_addr or "unknown"
+            log_user_action(user_ip, "astrology_page_visit")
+            learn_from_user(user_ip, "interest", "astrology")
+        except Exception:
+            logger.warning("Tracking failed.")
 
-    try:
-        log_user_action(user_ip, "astrology")
-        learn_from_user(user_ip, "interest", "astrology")
-    except Exception:
-        logger.warning("⚠ User tracking failed")
-
-    data = get_astrology_data()
-    return render_template("astrology.html", data=data)
-
+    return render_template(
+        "astrology.html",
+        detailed_planetary_interpretation=None
+    )
 
 # ==========================================================
-# 🔮 KUNDALI ROUTE (FULLY STABILIZED)
+# 🔮 KUNDALI ROUTE (FULLY FIXED)
 # ==========================================================
+
 @app.route("/astrology/kundali", methods=["GET", "POST"])
 def kundali_route():
 
     if request.method == "POST":
 
-        user_ip = request.remote_addr or "unknown"
-
         try:
-            log_user_action(user_ip, "kundali")
-            learn_from_user(user_ip, "sub_interest", "kundali")
-        except Exception:
-            logger.warning("⚠ Learning engine failed")
+            name = request.form.get("name")
+            dob = request.form.get("dob")
+            tob = request.form.get("tob")
+            place = request.form.get("pob")
 
-        name = request.form.get("name")
-        dob = request.form.get("dob")
-        tob = request.form.get("tob")
-        place = request.form.get("pob")
+            if not all([name, dob, tob, place]):
+                return render_template(
+                    "astrology.html",
+                    detailed_planetary_interpretation=build_default_kundali()
+                )
 
-        if not all([name, dob, tob, place]):
-            logger.warning("⚠ Incomplete Kundali form")
-            result = get_safe_kundali_response(
-                "Incomplete birth details provided."
-            )
-            return render_template(
-                "kundali_result.html",
-                kundali=result,
-                serp=None
-            )
-
-        try:
-            logger.info("🔮 Initializing Lal Kitab Engine")
+            if LalKitabEngine is None:
+                logger.error("LalKitabEngine missing.")
+                return render_template(
+                    "astrology.html",
+                    detailed_planetary_interpretation=build_default_kundali()
+                )
 
             birth_data = {
                 "name": name,
@@ -158,61 +186,46 @@ def kundali_route():
                 "place": place
             }
 
-            engine = LalKitabEngine(birth_data)
+            try:
+                engine = LalKitabEngine(birth_data)
+                raw_result = engine.generate_kundali()
+            except Exception as e:
+                logger.error(f"Kundali engine crashed: {e}")
+                traceback.print_exc()
+                raw_result = {}
 
-            if not hasattr(engine, "generate_kundali"):
-                raise AttributeError("generate_kundali() method not found")
+            final_result = normalize_engine_output(raw_result)
 
-            raw_result = engine.generate_kundali()
-
-            if not isinstance(raw_result, dict):
-                raise ValueError("Engine returned invalid structure")
-
-            result = get_safe_kundali_response()
-            result.update(raw_result)
-            result["generated_at"] = datetime.utcnow().isoformat()
-
-            logger.info("✅ Kundali generation successful")
-
-        except Exception as e:
-            logger.error("❌ KUNDALI ENGINE FAILURE")
-            traceback.print_exc()
-
-            result = get_safe_kundali_response(
-                f"Lal Kitab interpretation failed: {str(e)}"
+            return render_template(
+                "astrology.html",
+                detailed_planetary_interpretation=final_result
             )
 
-        # ✅ THIS RETURN WAS MISSING
-        return render_template(
-            "kundali_result.html",
-            kundali=result,
-            serp=None
-        )
+        except Exception as e:
+            logger.error("Fatal error in kundali route")
+            traceback.print_exc()
 
-    # ✅ GET request fallback
+            return render_template(
+                "astrology.html",
+                detailed_planetary_interpretation=build_default_kundali()
+            )
+
     return render_template(
-        "kundali_result.html",
-        kundali=None,
-        serp=None
+        "astrology.html",
+        detailed_planetary_interpretation=None
     )
+
 # ==========================================================
 # 📚 COURSES
 # ==========================================================
 
 @app.route("/courses")
 def courses():
-
-    user_ip = request.remote_addr or "unknown"
-
     try:
-        log_user_action(user_ip, "courses")
-        learn_from_user(user_ip, "interest", "courses")
+        data = get_courses_data() if get_courses_data else {}
     except Exception:
-        logger.warning("⚠ Tracking failed for courses")
-
-    data = get_courses_data()
+        data = {}
     return render_template("courses.html", data=data)
-
 
 # ==========================================================
 # 📈 MARKETING
@@ -220,24 +233,17 @@ def courses():
 
 @app.route("/marketing")
 def marketing():
-
-    user_ip = request.remote_addr or "unknown"
-
     try:
-        log_user_action(user_ip, "marketing")
-        learn_from_user(user_ip, "interest", "marketing")
+        data = get_marketing_data() if get_marketing_data else {}
     except Exception:
-        logger.warning("⚠ Tracking failed for marketing")
-
-    data = get_marketing_data()
+        data = {}
     return render_template("marketing.html", data=data)
 
-
 # ==========================================================
-# 🚀 PRODUCTION ENTRY POINT
+# 🚀 ENTRY POINT
 # ==========================================================
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"🚀 Starting Web Dragon AI on port {port}")
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)

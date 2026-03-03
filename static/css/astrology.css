@@ -1,0 +1,138 @@
+/* ================= GLOBAL OCEAN THEME ================= */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(
+        135deg,
+        #e0f7fa 0%,
+        #b2ebf2 25%,
+        #80deea 50%,
+        #4dd0e1 75%,
+        #26c6da 100%
+    );
+    background-attachment: fixed;
+    color: #03363d;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(12px);
+    padding: 15px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.logo {
+    color: #006064;
+}
+
+.nav-links a {
+    color: #004d40;
+}
+
+.nav-links a:hover {
+    color: #00838f;
+}
+
+/* ================= PAGE STRUCTURE ================= */
+
+.page-wrapper {
+    max-width: 1200px;
+    margin: auto;
+    padding: 60px 20px;
+}
+
+/* ================= PAGE TITLE ================= */
+
+.page-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.page-title h1 {
+    font-size: 36px;
+    color: #ffd369;
+}
+
+.page-title p {
+    color: #cccccc;
+}
+
+/* ================= CARD SYSTEM ================= */
+
+.section-card {
+    background: rgba(255,255,255,0.06);
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transition: 0.3s;
+}
+
+.section-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+
+.section-card h2 {
+    color: #00ffcc;
+    margin-bottom: 20px;
+}
+
+/* ================= GRID SYSTEM ================= */
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* ================= ITEM CARD ================= */
+
+.item-card {
+    background: rgba(0,0,0,0.4);
+    padding: 20px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.item-card:hover {
+    background: rgba(0,0,0,0.6);
+    transform: translateY(-4px);
+}
+
+.item-card h3 {
+    margin-top: 0;
+    color: #ffd369;
+}
+
+/* ================= BUTTON ================= */
+
+.btn-primary {
+    display: inline-block;
+    padding: 12px 28px;
+    background: #ffd369;
+    color: black;
+    font-weight: bold;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background: #ffbf00;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.5);
+    margin-top: 60px;
+    font-size: 14px;
+    color: #aaa;
+}

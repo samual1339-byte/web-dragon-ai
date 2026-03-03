@@ -1,157 +1,268 @@
-# ==========================================================
-# 🔮 INTERPRETATION ENGINE – CLEAN STABLE VERSION
-# ==========================================================
+"""
+interpretation_engine.py
+
+Unified Advanced Narrative Engine
+Structured for:
+
+- Birth Chart Interpretation
+- Current Transit Interpretation
+- House-wise Analysis
+- Lal Kitab Impact Layer
+- AI Insight Layer
+- Remedies Layer
+- Structured API Output
+"""
 
 from datetime import datetime
 
 
-def generate_interpretation(**kwargs):
+# ==========================================================
+# UTILITIES
+# ==========================================================
 
-    name = kwargs.get("name", "User")
-    lagna = kwargs.get("lagna")
-    strengths = kwargs.get("strengths", {})
-    yogas = kwargs.get("yogas", [])
-    doshas = kwargs.get("doshas", [])
-    transit = kwargs.get("transit", {})
+def _clamp(value, minimum=0, maximum=100):
+    return max(minimum, min(maximum, value))
 
-    summary_parts = []
-    summary_parts.append(f"{name},")
 
-    # ======================================================
-    # Lagna Personality
-    # ======================================================
+def _safe_list(value):
+    if isinstance(value, dict):
+        return value.get("yogas") or value.get("doshas") or []
+    return value if isinstance(value, list) else []
 
-    if not lagna:
-        summary_parts.append("ascendant information is unavailable.")
+
+# ==========================================================
+# PERSONALITY SUMMARY
+# ==========================================================
+
+def _generate_lagna_summary(name: str, lagna: str):
+
+    if not lagna or lagna == "Unknown":
+        return "Ascendant information unavailable."
+
+    prefix = f"{name}, " if name else ""
+
+    elements = {
+        "Fire": ["Aries", "Leo", "Sagittarius"],
+        "Earth": ["Taurus", "Virgo", "Capricorn"],
+        "Air": ["Gemini", "Libra", "Aquarius"],
+        "Water": ["Cancer", "Scorpio", "Pisces"]
+    }
+
+    if lagna in elements["Fire"]:
+        trait = "dynamic, leadership-driven and action oriented"
+    elif lagna in elements["Earth"]:
+        trait = "stable, practical and materially grounded"
+    elif lagna in elements["Air"]:
+        trait = "intellectual, communicative and strategic"
+    elif lagna in elements["Water"]:
+        trait = "intuitive, emotionally perceptive and spiritually sensitive"
     else:
-        summary_parts.append(f"with {lagna} ascendant,")
+        trait = "balanced and adaptive in nature"
 
-        fire_signs = ["Leo", "Aries"]
-        water_signs = ["Cancer", "Pisces"]
-        practical_signs = [
-            "Virgo",
-            "Capricorn",
-            "Taurus",
-            "Gemini",
-            "Libra",
-            "Aquarius",
-            "Sagittarius",
-            "Scorpio",
-        ]
+    return f"{prefix}with {lagna} ascendant, you are naturally {trait}."
 
-        if lagna in fire_signs:
-            summary_parts.append("you are bold and leadership-driven.")
-        elif lagna in water_signs:
-            summary_parts.append("you are emotional and intuitive.")
-        elif lagna in practical_signs:
-            summary_parts.append("you are practical and analytical.")
-        else:
-            summary_parts.append("your personality traits are unique and dynamic.")
 
-    # ======================================================
-    # Yogas
-    # ======================================================
+# ==========================================================
+# PLANETARY POSITION INTERPRETATION (HOUSE BASED)
+# ==========================================================
 
-    yoga_list = []
+def _interpret_planetary_positions(by_planet: dict):
 
-    if isinstance(yogas, dict):
-        yoga_list = yogas.get("yogas", [])
-    elif isinstance(yogas, list):
-        yoga_list = yogas
+    interpretations = []
 
-    if yoga_list:
-        summary_parts.append(
-            f"You have powerful yogas like {', '.join(yoga_list)}."
+    for planet, pdata in by_planet.items():
+
+        house = pdata.get("house")
+        rashi = pdata.get("rashi")
+        degree = pdata.get("degree")
+
+        line = (
+            f"{planet} positioned in {rashi} (House {house}) "
+            f"at {degree}° influences life themes related to house {house} matters."
         )
 
-    # ======================================================
-    # Doshas
-    # ======================================================
+        interpretations.append(line)
 
-    dosha_list = []
+    return interpretations
 
-    if isinstance(doshas, dict):
-        dosha_list = doshas.get("doshas", [])
-    elif isinstance(doshas, list):
-        dosha_list = doshas
 
-    if dosha_list:
-        summary_parts.append(
-            f"However, caution is advised due to {', '.join(dosha_list)}."
-        )
+# ==========================================================
+# YOGA ANALYSIS
+# ==========================================================
 
-    # ======================================================
-    # Planetary Strength Analysis
-    # ======================================================
+def _interpret_yogas(yogas):
 
-    planetary_analysis = []
+    yogas = _safe_list(yogas)
 
-    if isinstance(strengths, dict):
-        for planet, data in strengths.items():
-
-            if not isinstance(data, dict):
-                continue
-
-            strength = data.get("strength", "Unknown")
-            rashi = data.get("rashi", "Unknown")
-            house = data.get("house")
-
-            text = f"{planet} in {rashi}"
-
-            if house:
-                text += f" placed in house {house}"
-
-            text += f" shows {strength} influence."
-
-            planetary_analysis.append(text)
-
-    if not planetary_analysis:
-        planetary_analysis.append(
-            "Detailed planetary strength data unavailable."
-        )
-
-    # ======================================================
-    # Transit Analysis
-    # ======================================================
-
-    transit_analysis = []
-
-    if isinstance(transit, dict):
-        for planet, data in transit.items():
-
-            if not isinstance(data, dict):
-                continue
-
-            rashi = data.get("rashi")
-            house = data.get("house")
-
-            text = f"Transit of {planet}"
-
-            if rashi:
-                text += f" in {rashi}"
-
-            if house:
-                text += f" affecting house {house}"
-
-            text += " influences your current life phase."
-
-            transit_analysis.append(text)
-
-    if not transit_analysis:
-        transit_analysis.append("Transit data not available.")
-
-    # ======================================================
-    # Final Output
-    # ======================================================
-
-    summary_text = " ".join(summary_parts)
+    if not yogas:
+        return {
+            "count": 0,
+            "details": [],
+            "summary": "No dominant classical yogas detected."
+        }
 
     return {
-        "summary": summary_text,
-        "lagna": lagna,
-        "planetary_analysis": planetary_analysis,
-        "yoga_analysis": yoga_list if yoga_list else ["No major yoga detected."],
-        "dosha_analysis": dosha_list if dosha_list else ["No major dosha detected."],
-        "transit_analysis": transit_analysis,
-        "generated_at": datetime.utcnow().isoformat(),
+        "count": len(yogas),
+        "details": yogas,
+        "summary": f"{len(yogas)} auspicious yogas enhance destiny."
     }
+
+
+# ==========================================================
+# DOSHA ANALYSIS
+# ==========================================================
+
+def _interpret_doshas(doshas):
+
+    doshas = _safe_list(doshas)
+
+    if not doshas or "No Major Dosha Detected" in doshas:
+        return {
+            "count": 0,
+            "details": [],
+            "summary": "No significant dosha affecting core life areas."
+        }
+
+    return {
+        "count": len(doshas),
+        "details": doshas,
+        "summary": f"{len(doshas)} karmic imbalance factors require awareness."
+    }
+
+
+# ==========================================================
+# LAL KITAB IMPACT LAYER
+# ==========================================================
+
+def _generate_lalkitab_layer(by_planet: dict):
+
+    impacts = []
+    remedies = []
+
+    for planet, pdata in by_planet.items():
+
+        house = pdata.get("house")
+
+        if house in [6, 8, 12]:
+            impacts.append(f"{planet} in house {house} indicates karmic debt activation.")
+            remedies.append(f"Perform donation related to {planet} on its weekday.")
+
+    if not impacts:
+        impacts.append("No strong Lal Kitab karmic triggers detected.")
+
+    if not remedies:
+        remedies.append("Maintain ethical conduct and balanced routine.")
+
+    return {
+        "impact_analysis": impacts,
+        "remedies": remedies
+    }
+
+
+# ==========================================================
+# AI GENERATED INSIGHT LAYER
+# ==========================================================
+
+def _generate_ai_insight(yoga_count, dosha_count, strengths):
+
+    score = 60
+    score += yoga_count * 5
+    score -= dosha_count * 6
+
+    if isinstance(strengths, dict):
+        for pdata in strengths.values():
+            if isinstance(pdata, dict):
+                if pdata.get("strength") in ["Strong", "Exalted"]:
+                    score += 2
+                if pdata.get("strength") in ["Weak", "Debilitated"]:
+                    score -= 2
+
+    destiny_score = _clamp(score)
+
+    if destiny_score >= 75:
+        impact = "High growth potential with strong karmic momentum."
+    elif destiny_score >= 55:
+        impact = "Balanced life with moderate rise and learning phases."
+    else:
+        impact = "Life requires structured effort and conscious correction."
+
+    return {
+        "destiny_score": destiny_score,
+        "ai_kundali_impact": impact
+    }
+
+
+# ==========================================================
+# TRANSIT INTERPRETATION
+# ==========================================================
+
+def _interpret_transits(current_planets: dict):
+
+    if not current_planets:
+        return "Current transit data unavailable."
+
+    active = []
+
+    for planet, pdata in current_planets.items():
+        house = pdata.get("house")
+        active.append(f"{planet} currently influencing house {house} themes.")
+
+    return " ".join(active)
+
+
+# ==========================================================
+# MAIN ENGINE
+# ==========================================================
+
+def generate_interpretation(
+    birth_planetary_data: dict,
+    current_planetary_data: dict,
+    strengths: dict,
+    yogas,
+    doshas,
+    lagna: str,
+    name: str = None
+):
+
+    try:
+
+        birth_by_planet = birth_planetary_data.get("by_planet", {})
+        current_by_planet = current_planetary_data.get("by_planet", {})
+
+        personality = _generate_lagna_summary(name, lagna)
+
+        planetary_birth = _interpret_planetary_positions(birth_by_planet)
+
+        yoga_data = _interpret_yogas(yogas)
+        dosha_data = _interpret_doshas(doshas)
+
+        lalkitab_layer = _generate_lalkitab_layer(birth_by_planet)
+
+        ai_layer = _generate_ai_insight(
+            yoga_data["count"],
+            dosha_data["count"],
+            strengths
+        )
+
+        transit_layer = _interpret_transits(current_by_planet)
+
+        return {
+            "birth_chart": {
+                "personality_summary": personality,
+                "planetary_positions": planetary_birth,
+                "yoga_analysis": yoga_data,
+                "dosha_analysis": dosha_data,
+                "lalkitab": lalkitab_layer
+            },
+            "current_transit": {
+                "transit_influence": transit_layer
+            },
+            "ai_analysis": ai_layer,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+
+    except Exception as e:
+        return {
+            "error": str(e),
+            "generated_at": datetime.utcnow().isoformat()
+        }

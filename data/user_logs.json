@@ -2283,5 +2283,194 @@
     "page": "kundali",
     "query": null,
     "extra_data": null
+  },
+  {
+    "time": "2026-03-01 17:16:36",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 17:16:44",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 17:47:05",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 17:47:13",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 18:15:43",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 18:15:51",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 18:22:28",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 18:22:38",
+    "ip": "127.0.0.1",
+    "page": "kundali",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 19:52:44",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 19:53:27",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 19:53:36",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:17:08",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:17:47",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:18:01",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:18:49",
+    "ip": "127.0.0.1",
+    "page": "astrology",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:40:20",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:41:16",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-01 20:42:08",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 06:50:02",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 06:57:05",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 06:58:56",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 07:52:09",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 08:39:53",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 08:49:51",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 08:59:47",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 22:28:36",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
+  },
+  {
+    "time": "2026-03-03 22:50:08",
+    "ip": "127.0.0.1",
+    "page": "astrology_page_visit",
+    "query": null,
+    "extra_data": null
   }
 ]

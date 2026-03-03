@@ -1,3 +1,43 @@
+/* ===== GLOBAL RESET ===== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== NAVBAR ===== */
+
+nav {
+  background: #111;
+  padding: 15px 0;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+nav a {
+  color: #ffd369;
+  text-decoration: none;
+  margin: 0 20px;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  color: #00ffcc;
+  transform: translateY(-2px);
+}
+
+/* Optional active link effect */
+nav a.active {
+  color: #00ffcc;
+  border-bottom: 2px solid #00ffcc;
+  padding-bottom: 4px;
+}
+
 /* ===== HOME PAGE ===== */
 
 body.home {
@@ -6,7 +46,7 @@ body.home {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Prevent accidental overflow blocking */
+  overflow-x: hidden;
 }
 
 /* Header */
@@ -28,7 +68,7 @@ header p {
   margin: 40px 0;
   position: relative;
   z-index: 1;
-  pointer-events: none; /* CRITICAL: prevent blocking clicks */
+  pointer-events: none;
 }
 
 .dragon {
@@ -36,10 +76,9 @@ header p {
   max-width: 100%;
   height: auto;
   animation: floatDragon 4s ease-in-out infinite;
-  pointer-events: none; /* CRITICAL: image cannot block clicks */
+  pointer-events: none;
 }
 
-/* Dragon floating animation */
 @keyframes floatDragon {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-20px); }
@@ -51,7 +90,7 @@ header p {
 .services {
   margin-top: 20px;
   position: relative;
-  z-index: 10; /* Above dragon */
+  z-index: 10;
 }
 
 .services h2 {
@@ -66,7 +105,7 @@ header p {
   gap: 20px;
   flex-wrap: wrap;
   position: relative;
-  z-index: 20; /* Always above everything */
+  z-index: 20;
 }
 
 /* ===== Individual Card ===== */
@@ -84,16 +123,14 @@ header p {
   cursor: pointer;
   position: relative;
   z-index: 30;
-  pointer-events: auto; /* Explicitly clickable */
+  pointer-events: auto;
 }
 
-/* Hover Effect */
 .card:hover {
   background: #e0ffe8;
   transform: scale(1.05);
 }
 
-/* Ensure all anchor tags are interactive */
 a {
   pointer-events: auto;
   position: relative;

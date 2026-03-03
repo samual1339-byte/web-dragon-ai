@@ -1,6 +1,7 @@
 from datetime import datetime
 import traceback
 
+from .scoring_engine import calculate_scores
 from ..user_logger.user_logger import log_user_action
 from .astronomy_calculator import calculate_planetary_positions
 from .planetary_strength import calculate_strength
@@ -14,17 +15,10 @@ from ..transit_engine.live_transit import get_live_transit
 
 
 class LalKitabEngine:
-    """
-    Core Kundali Engine
-    Handles:
-    - Planetary calculation
-    - Strength analysis
-    - Yogas & Doshas
-    - Lal Kitab remedies
-    - Life interpretation
-    - Transit influence
-    - Kundali matching
-    """
+
+    # ======================================================
+    # INIT
+    # ======================================================
 
     def __init__(self, birth_data: dict):
 
@@ -32,7 +26,6 @@ class LalKitabEngine:
             raise TypeError("birth_data must be dictionary")
 
         required_fields = ["date", "time", "place"]
-
         for field in required_fields:
             if not birth_data.get(field):
                 raise ValueError(f"Missing required birth field: {field}")
@@ -40,29 +33,69 @@ class LalKitabEngine:
         self.birth_data = birth_data
 
     # ======================================================
-    # SAFE TRANSIT FETCHER
+    # INTERNAL HELPERS
     # ======================================================
 
-    def _get_safe_transit(self):
+    def _structure_planets(self, planet_dict: dict):
+
+        if not isinstance(planet_dict, dict):
+            return {"by_planet": {}, "by_house": {}}
+
+        by_planet = planet_dict
+        by_house = {}
+
+        for planet, pdata in planet_dict.items():
+            house = pdata.get("house")
+            if house:
+                by_house.setdefault(house, []).append(planet)
+
+        return {
+            "by_planet": by_planet,
+            "by_house": by_house
+        }
+
+    def _safe_transit(self):
         try:
             data = get_live_transit()
-            return data if isinstance(data, dict) else {}
+            if isinstance(data, dict):
+                return data
         except Exception:
-            return {}
+            pass
+        return {}
+
+    def _normalize_yoga(self, raw, lagna):
+        if isinstance(raw, dict):
+            return raw.get("yogas", [])
+        if isinstance(raw, list):
+            return raw
+        return []
+
+    def _normalize_dosha(self, raw, lagna):
+        if isinstance(raw, dict):
+            return raw.get("doshas", [])
+        if isinstance(raw, list):
+            return raw
+        return []
 
     # ======================================================
-    # MAIN KUNDALI GENERATOR
+    # MAIN GENERATOR
     # ======================================================
 
     def generate_kundali(self):
 
         try:
-            # 1️⃣ Planetary Positions
-            planets = calculate_planetary_positions(self.birth_data)
-            if not isinstance(planets, dict):
-                planets = {}
 
-            # 2️⃣ Lagna
+            # --------------------------------------------------
+            # 1️⃣ BIRTH PLANETS
+            # --------------------------------------------------
+
+            birth_planets_raw = calculate_planetary_positions(self.birth_data)
+            birth_planets = self._structure_planets(birth_planets_raw)
+
+            # --------------------------------------------------
+            # 2️⃣ LAGNA
+            # --------------------------------------------------
+
             lagna = calculate_lagna(
                 self.birth_data.get("name"),
                 self.birth_data.get("date"),
@@ -70,148 +103,161 @@ class LalKitabEngine:
                 self.birth_data.get("place"),
             ) or "Unknown"
 
-            # 3️⃣ Strength
-            strengths = calculate_strength(planets)
-            if not isinstance(strengths, dict):
-                strengths = {}
+            # --------------------------------------------------
+            # 3️⃣ PLANET STRENGTH
+            # --------------------------------------------------
 
-            # 4️⃣ Yogas
-            yogas = detect_yogas(planets, lagna)
-            if not isinstance(yogas, list):
-                yogas = []
+            strengths = calculate_strength(birth_planets_raw) or {}
 
-            # 5️⃣ Doshas
-            doshas = detect_doshas(planets, lagna)
-            if not isinstance(doshas, list):
-                doshas = []
+            # --------------------------------------------------
+            # 4️⃣ YOGA
+            # --------------------------------------------------
 
-            # 6️⃣ Transit
-            transit_data = self._get_safe_transit()
+            raw_yoga = detect_yogas(birth_planets_raw, lagna)
+            yogas = self._normalize_yoga(raw_yoga, lagna)
 
-            # 7️⃣ Interpretation
+            # --------------------------------------------------
+            # 5️⃣ DOSHA
+            # --------------------------------------------------
+
+            raw_dosha = detect_doshas(birth_planets_raw, lagna)
+            doshas = self._normalize_dosha(raw_dosha, lagna)
+
+            # --------------------------------------------------
+            # 6️⃣ SCORING (BIRTH BASED ONLY)
+            # --------------------------------------------------
+
+            scores = calculate_scores(
+                birth_planets_raw,
+                strengths,
+                yogas,
+                doshas
+            ) or {}
+
+            base_destiny_score = scores.get("destiny_score", 60)
+
+            # --------------------------------------------------
+            # 7️⃣ CURRENT TRANSIT
+            # --------------------------------------------------
+
+            transit_raw = self._safe_transit()
+            current_structured = self._structure_planets(transit_raw)
+
+            # --------------------------------------------------
+            # 8️⃣ STRUCTURED INTERPRETATION
+            # --------------------------------------------------
+
             interpretation = generate_interpretation(
-                planets=planets,
+                birth_planetary_data=birth_planets,
+                current_planetary_data=current_structured,
                 strengths=strengths,
                 yogas=yogas,
                 doshas=doshas,
                 lagna=lagna,
-                transit=transit_data,
-            ) or ""
-
-            if isinstance(interpretation, dict):
-                interpretation = " ".join(str(v) for v in interpretation.values())
-
-            # 8️⃣ Life Summary
-            life_interpretation = (
-                f"Life influenced by {len(yogas)} yogas "
-                f"and {len(doshas)} doshas. "
-                f"Lagna: {lagna}."
+                name=self.birth_data.get("name", "User")
             )
 
-            # ======================================================
-            # LAL KITAB REMEDIES LOGIC
-            # ======================================================
-
-            remedies = []
-
-            if doshas:
-                remedies.extend(
-                    [
-                        "Chant Hanuman Chalisa on Tuesdays.",
-                        "Donate black sesame seeds on Saturdays.",
-                        "Respect elders and serve parents.",
-                        "Offer water to Sun every morning.",
-                    ]
-                )
-
-            for planet, pdata in strengths.items():
-                if isinstance(pdata, dict):
-                    if pdata.get("strength") in ["Weak", "Average"]:
-                        remedies.append(
-                            f"Strengthen {planet} through mantra chanting and charity."
-                        )
-
-            if not remedies:
-                remedies.append("No major Lal Kitab remedies required.")
-
-            # ======================================================
-            # AI ENHANCEMENT (SAFE WRAPPER)
-            # ======================================================
+            # --------------------------------------------------
+            # 9️⃣ AI ENHANCEMENT (TEXT ONLY LAYER)
+            # --------------------------------------------------
 
             try:
-                enhanced = enhance_with_ai(interpretation)
-                if isinstance(enhanced, dict):
-                    interpretation = " ".join(str(v) for v in enhanced.values())
-                elif isinstance(enhanced, str):
-                    interpretation = enhanced
+                ai_boost = enhance_with_ai(
+                    interpretation.get("birth_chart", {})
+                    .get("personality_summary", "")
+                )
+
+                if isinstance(ai_boost, str) and ai_boost.strip():
+                    interpretation["ai_analysis"]["enhanced_personality"] = ai_boost
+
             except Exception:
                 pass
 
-            # ======================================================
-            # LOG USER ACTION
-            # ======================================================
+            # --------------------------------------------------
+            # 🔟 REMEDY EXTRACTION
+            # --------------------------------------------------
+
+            remedies = interpretation.get("birth_chart", {}) \
+                                     .get("lalkitab", {}) \
+                                     .get("remedies", [])
+
+            # --------------------------------------------------
+            # 1️⃣1️⃣ LOGGING
+            # --------------------------------------------------
 
             try:
                 log_user_action(
                     user=self.birth_data.get("name", "Unknown"),
-                    action="Generated Kundali",
+                    action="Generated Structured Kundali"
                 )
             except Exception:
                 pass
 
-            # ======================================================
+            # --------------------------------------------------
             # FINAL STRUCTURED RESPONSE
-            # ======================================================
+            # --------------------------------------------------
 
             return {
-                "birth_data": self.birth_data,
-                "lagna": lagna,
-                "planets": planets,
-                "planetary_strength": strengths,
-                "yogas": yogas,
-                "dosha_analysis": {
-                    "total_doshas": len(doshas),
-                    "doshas": doshas,
+                "meta": {
+                    "generated_at": datetime.utcnow().isoformat(),
+                    "engine_version": "2.0-structured"
                 },
-                "lal_kitab_remedies": remedies,
-                "life_interpretation": life_interpretation,
-                "detailed_planetary_interpretation": interpretation,
-                "transit": transit_data,
-                "generated_at": datetime.utcnow().isoformat(),
+
+                "birth_details": self.birth_data,
+
+                "birth_chart": {
+                    "lagna": lagna,
+                    "planetary_positions": birth_planets,
+                    "planetary_strength": strengths,
+                    "yogas": yogas,
+                    "doshas": doshas,
+                    "base_scores": scores
+                },
+
+                "current_transit": {
+                    "planetary_positions": current_structured
+                },
+
+                "interpretation_layers": interpretation,
+
+                "remedies": remedies,
+
+                "final_destiny_score":
+                    interpretation.get("ai_analysis", {})
+                                  .get("destiny_score", base_destiny_score)
             }
 
         except Exception as e:
             traceback.print_exc()
             return {
                 "error": str(e),
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.utcnow().isoformat()
             }
 
     # ======================================================
-    # KUNDALI MATCHING
+    # MATCHING ENGINE
     # ======================================================
 
     def generate_kundali_match(self, partner_birth_data: dict):
 
         try:
-            primary_strength = calculate_strength(
-                calculate_planetary_positions(self.birth_data)
-            ) or {}
 
-            partner_strength = calculate_strength(
-                calculate_planetary_positions(partner_birth_data)
-            ) or {}
+            primary_planets = calculate_planetary_positions(self.birth_data) or {}
+            partner_planets = calculate_planetary_positions(partner_birth_data) or {}
+
+            primary_strength = calculate_strength(primary_planets) or {}
+            partner_strength = calculate_strength(partner_planets) or {}
 
             match_result = match_kundalis(primary_strength, partner_strength)
 
             return {
                 "matching_result": match_result,
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.utcnow().isoformat()
             }
 
         except Exception as e:
             traceback.print_exc()
             return {
                 "error": str(e),
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.utcnow().isoformat()
             }
