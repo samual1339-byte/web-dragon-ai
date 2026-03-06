@@ -63,7 +63,7 @@ def _generate_lagna_summary(name: str, lagna: str):
 
 
 # ==========================================================
-# PLANETARY POSITION INTERPRETATION (HOUSE BASED)
+# PLANETARY POSITION INTERPRETATION
 # ==========================================================
 
 def _interpret_planetary_positions(by_planet: dict):
@@ -131,7 +131,7 @@ def _interpret_doshas(doshas):
 
 
 # ==========================================================
-# LAL KITAB IMPACT LAYER
+# LAL KITAB IMPACT LAYER (FIXED)
 # ==========================================================
 
 def _generate_lalkitab_layer(by_planet: dict):
@@ -144,8 +144,12 @@ def _generate_lalkitab_layer(by_planet: dict):
         house = pdata.get("house")
 
         if house in [6, 8, 12]:
-            impacts.append(f"{planet} in house {house} indicates karmic debt activation.")
-            remedies.append(f"Perform donation related to {planet} on its weekday.")
+            impacts.append(
+                f"{planet} in house {house} indicates karmic debt activation."
+            )
+            remedies.append(
+                f"Perform donation related to {planet} on its weekday."
+            )
 
     if not impacts:
         impacts.append("No strong Lal Kitab karmic triggers detected.")
